@@ -6,7 +6,7 @@ export async function middleware(request: NextRequest) {
 
   // Only protect /admin routes (except login)
   if (pathname.startsWith("/admin") && !pathname.includes("/admin/login")) {
-    // Check session via better-auth cookie
+    // Check session via better-auth cookie (both HTTP and HTTPS variants)
     const sessionCookie =
       request.cookies.get("better-auth.session_token") ||
       request.cookies.get("__Secure-better-auth.session_token");
@@ -18,36 +18,26 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      // Validate session with the backend API directly
-      const apiUrl =
-        process.env.BACKEND_API_URL ||
-        process.env.NEXT_PUBLIC_API_URL ||
-        "http://localhost:4000/api";
+      // Validate session with the backend API directly (server-to-server)
+      const apiUrl = process.env.BACKEND_API_URL || "http://localhost:4000/api";
       const res = await fetch(`${apiUrl}/auth/get-session`, {
         headers: {
-          Authorization: `Bearer ${sessionCookie.value}`,
+          Cookie: `better-auth.session_token=${sessionCookie.value}`,
         },
       });
 
       if (!res.ok) {
         return NextResponse.redirect(
-          new URL(`/admin/login?error=not_ok_${res.status}`, request.url),
+          new URL(`/admin/login?error=session_${res.status}`, request.url),
         );
       }
-
-      // Check role if needed
-      // const { user } = await res.json();
-      // if (user.role !== 'admin' && user.role !== 'superadmin') { ... }
 
       return NextResponse.next();
     } catch (error: any) {
       if (error?.digest === "DYNAMIC_SERVER_USAGE") throw error;
       console.error("Middleware session check failed:", error);
       return NextResponse.redirect(
-        new URL(
-          `/admin/login?error=fetch_failed_${error.message.replace(/\s/g, "_")}`,
-          request.url,
-        ),
+        new URL("/admin/login?error=fetch_error", request.url),
       );
     }
   }

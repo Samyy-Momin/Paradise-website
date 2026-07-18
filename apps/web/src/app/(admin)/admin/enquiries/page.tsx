@@ -6,13 +6,15 @@ export const dynamic = "force-dynamic";
 
 export default async function EnquiriesPage() {
   const cookieStore = cookies();
-  const sessionToken = cookieStore.get("better-auth.session_token");
+  const sessionToken =
+    cookieStore.get("better-auth.session_token") ||
+    cookieStore.get("__Secure-better-auth.session_token");
 
   if (!sessionToken) {
     redirect("/admin/login");
   }
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+  const apiUrl = process.env.BACKEND_API_URL || "http://localhost:4000/api";
 
   const res = await fetch(`${apiUrl}/enquiries`, {
     headers: {

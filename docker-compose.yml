@@ -1,0 +1,86 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: paradise_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-paradise_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-paradise_dev_pw}
+      POSTGRES_DB: ${POSTGRES_DB:-paradise_school}
+    ports:
+      - "5432:5432"
+    volumes:
+      - paradise_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-paradise_admin} -d ${POSTGRES_DB:-paradise_school}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - paradise_net
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: paradise_api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-paradise_admin}:${POSTGRES_PASSWORD:-paradise_dev_pw}@postgres:5432/${POSTGRES_DB:-paradise_school}?schema=public"
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:4000}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+      PORT: 4000
+      NODE_ENV: production
+    ports:
+      - "4000:4000"
+    networks:
+      - paradise_net
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: paradise_web
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      # Server-side value — resolved via Docker's internal DNS, NOT localhost.
+      # See TRD.md section 4.1 for why this differs from hybrid local dev.
+      API_INTERNAL_URL: ${API_INTERNAL_URL:-http://api:4000}
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    networks:
+      - paradise_net
+
+  # Optional — comment out this whole service if you don't want a second
+  # inspection tool running. Access at http://localhost:5050
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: paradise_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@paradiseschool.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - paradise_net
+
+networks:
+  paradise_net:
+    driver: bridge
+
+volumes:
+  paradise_pg_data:
+    driver: local

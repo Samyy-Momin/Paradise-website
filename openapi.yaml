@@ -1,0 +1,880 @@
+openapi: 3.0.3
+info:
+  title: Paradise English School & Tender Kidz Pre-School API
+  version: "1.0.0"
+  description: >
+    Backend API for the school storefront and admin panel.
+    Public endpoints (no auth) power the storefront; admin-guarded
+    endpoints require an authenticated session cookie.
+
+
+    Authentication itself is handled by Better Auth, mounted at
+    `/api/auth/*` on this same server (sign-in, sign-up, sign-out,
+    session, admin role management). Those routes are library-managed
+    and intentionally NOT specified below — see Better Auth's own
+    documentation for their request/response shapes. Everything in
+    this file assumes the caller already has a valid Better Auth
+    session cookie attached (sent automatically by the browser via
+    the Next.js same-origin rewrite).
+
+servers:
+  - url: http://localhost:4000
+    description: Local development
+
+tags:
+  - name: Enquiries
+  - name: Notices
+  - name: Gallery
+  - name: Testimonials
+  - name: Faculty
+  - name: FAQ
+  - name: Settings
+  - name: Dashboard
+  - name: Documents
+  - name: Uploads
+
+components:
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: better-auth.session_token
+      description: >
+        Session cookie issued by Better Auth after sign-in at
+        POST /api/auth/sign-in/email. Sent automatically by the
+        browser on same-origin requests — the frontend never reads
+        or attaches this manually.
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        statusCode: { type: integer, example: 400 }
+        message: { type: string, example: "childAge must be a positive number" }
+        error: { type: string, example: "Bad Request" }
+        path: { type: string, example: "/enquiries" }
+        timestamp: { type: string, format: date-time }
+
+    PaginationMeta:
+      type: object
+      properties:
+        page: { type: integer, example: 1 }
+        limit: { type: integer, example: 20 }
+        total: { type: integer, example: 42 }
+        totalPages: { type: integer, example: 3 }
+
+    # Note: there is no hand-defined User/LoginRequest/LoginResponse schema
+    # here — the authenticated user object comes from Better Auth's own
+    # session response shape (id, email, name, role, banned, etc. per the
+    # `admin` plugin config), not from application code.
+
+    Enquiry:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        parentName: { type: string, example: "Rakesh Sharma" }
+        phone: { type: string, example: "+919876543210" }
+        childAge: { type: integer, example: 4 }
+        branch: { type: string, enum: [PARADISE_ENGLISH_SCHOOL, TENDER_KIDZ_PRE_SCHOOL] }
+        message: { type: string, nullable: true }
+        status: { type: string, enum: [NEW, CONTACTED, VISIT_SCHEDULED, ADMITTED, LOST] }
+        source: { type: string, nullable: true, example: "website" }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    CreateEnquiryRequest:
+      type: object
+      required: [parentName, phone, childAge, branch]
+      properties:
+        parentName: { type: string }
+        phone: { type: string }
+        childAge: { type: integer, minimum: 1, maximum: 18 }
+        branch: { type: string, enum: [PARADISE_ENGLISH_SCHOOL, TENDER_KIDZ_PRE_SCHOOL] }
+        message: { type: string, nullable: true }
+
+    UpdateEnquiryStatusRequest:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string, enum: [NEW, CONTACTED, VISIT_SCHEDULED, ADMITTED, LOST] }
+
+    EnquiryNote:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        enquiryId: { type: string, format: uuid }
+        authorId: { type: string, format: uuid }
+        note: { type: string }
+        createdAt: { type: string, format: date-time }
+
+    CreateEnquiryNoteRequest:
+      type: object
+      required: [note]
+      properties:
+        note: { type: string }
+
+    Notice:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        slug: { type: string }
+        body: { type: string }
+        imageUrl: { type: string, nullable: true }
+        publishAt: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+
+    CreateNoticeRequest:
+      type: object
+      required: [title, body, publishAt]
+      properties:
+        title: { type: string }
+        body: { type: string }
+        imageUrl: { type: string, nullable: true }
+        publishAt: { type: string, format: date-time }
+
+    GalleryCategory:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string, example: "Annual Day" }
+        slug: { type: string, example: "annual-day" }
+        order: { type: integer }
+        createdAt: { type: string, format: date-time }
+
+    CreateGalleryCategoryRequest:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        order: { type: integer, default: 0 }
+
+    GalleryItem:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        url: { type: string }
+        categoryId: { type: string, format: uuid }
+        category: { $ref: "#/components/schemas/GalleryCategory" }
+        altText: { type: string }
+        order: { type: integer }
+        createdAt: { type: string, format: date-time }
+
+    CreateGalleryItemRequest:
+      type: object
+      required: [url, categoryId, altText]
+      properties:
+        url: { type: string }
+        categoryId: { type: string, format: uuid }
+        altText: { type: string }
+        order: { type: integer, default: 0 }
+
+    Testimonial:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        parentName: { type: string }
+        content: { type: string }
+        rating: { type: integer, minimum: 1, maximum: 5 }
+        approved: { type: boolean }
+        createdAt: { type: string, format: date-time }
+
+    CreateTestimonialRequest:
+      type: object
+      required: [parentName, content, rating]
+      properties:
+        parentName: { type: string }
+        content: { type: string }
+        rating: { type: integer, minimum: 1, maximum: 5 }
+
+    FacultyMember:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        qualification: { type: string }
+        subjectOrGrade: { type: string }
+        photoUrl: { type: string, nullable: true }
+        order: { type: integer }
+
+    CreateFacultyMemberRequest:
+      type: object
+      required: [name, qualification, subjectOrGrade]
+      properties:
+        name: { type: string }
+        qualification: { type: string }
+        subjectOrGrade: { type: string }
+        photoUrl: { type: string, nullable: true }
+        order: { type: integer, default: 0 }
+
+    FAQItem:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        question: { type: string }
+        answer: { type: string }
+        order: { type: integer }
+
+    CreateFAQItemRequest:
+      type: object
+      required: [question, answer]
+      properties:
+        question: { type: string }
+        answer: { type: string }
+        order: { type: integer, default: 0 }
+
+    Settings:
+      type: object
+      properties:
+        address: { type: string }
+        phones: { type: array, items: { type: string } }
+        hours: { type: string, example: "Mon–Sat, 10:00 AM–5:00 PM" }
+        instagramUrl: { type: string }
+        facebookUrl: { type: string }
+        threadsUrl: { type: string }
+        principalName: { type: string, example: "Sangeeta Nagvanshi" }
+        principalDesignation: { type: string, example: "Founder & President" }
+        principalMessage: { type: string, nullable: true }
+        principalPhotoUrl: { type: string, nullable: true }
+
+    UpdateSettingsRequest:
+      type: object
+      properties:
+        address: { type: string }
+        phones: { type: array, items: { type: string } }
+        hours: { type: string }
+        instagramUrl: { type: string }
+        facebookUrl: { type: string }
+        threadsUrl: { type: string }
+        principalName: { type: string }
+        principalDesignation: { type: string }
+        principalMessage: { type: string }
+        principalPhotoUrl: { type: string }
+
+    DashboardStats:
+      type: object
+      properties:
+        enquiriesThisMonth: { type: integer }
+        enquiriesLastMonth: { type: integer }
+        conversionRateByStage:
+          type: object
+          additionalProperties: { type: integer }
+        enquiriesByBranch:
+          type: object
+          properties:
+            PARADISE_ENGLISH_SCHOOL: { type: integer }
+            TENDER_KIDZ_PRE_SCHOOL: { type: integer }
+
+    UploadResponse:
+      type: object
+      properties:
+        url: { type: string, example: "https://res.cloudinary.com/dghemsxka/image/upload/v.../paradise/abc123.jpg" }
+        publicId: { type: string, example: "paradise/abc123" }
+
+    GenerateDocumentRequest:
+      type: object
+      required: [type, enquiryId]
+      properties:
+        type: { type: string, enum: [ADMISSION_FORM, FEE_RECEIPT, ID_CARD] }
+        enquiryId: { type: string, format: uuid }
+
+paths:
+  /enquiries:
+    get:
+      tags: [Enquiries]
+      summary: List enquiries (admin)
+      security:
+        - sessionAuth: []
+      parameters:
+        - in: query
+          name: status
+          schema: { type: string, enum: [NEW, CONTACTED, VISIT_SCHEDULED, ADMITTED, LOST] }
+        - in: query
+          name: branch
+          schema: { type: string, enum: [PARADISE_ENGLISH_SCHOOL, TENDER_KIDZ_PRE_SCHOOL] }
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 20 }
+      responses:
+        "200":
+          description: Paginated list of enquiries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/Enquiry" }
+                  meta: { $ref: "#/components/schemas/PaginationMeta" }
+    post:
+      tags: [Enquiries]
+      summary: Submit an admission enquiry (public — storefront enquiry form)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateEnquiryRequest" }
+      responses:
+        "201":
+          description: Enquiry created; auto WhatsApp/SMS ack + staff notification triggered
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Enquiry" }
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /enquiries/{id}:
+    get:
+      tags: [Enquiries]
+      summary: Get a single enquiry with its notes
+      security:
+        - sessionAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Enquiry detail
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Enquiry"
+                  - type: object
+                    properties:
+                      notes:
+                        type: array
+                        items: { $ref: "#/components/schemas/EnquiryNote" }
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /enquiries/{id}/status:
+    patch:
+      tags: [Enquiries]
+      summary: Update enquiry pipeline stage
+      security:
+        - sessionAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UpdateEnquiryStatusRequest" }
+      responses:
+        "200":
+          description: Updated enquiry
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Enquiry" }
+
+  /enquiries/{id}/notes:
+    post:
+      tags: [Enquiries]
+      summary: Add a follow-up note to an enquiry
+      security:
+        - sessionAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateEnquiryNoteRequest" }
+      responses:
+        "201":
+          description: Note added
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EnquiryNote" }
+
+  /notices:
+    get:
+      tags: [Notices]
+      summary: List published notices (public)
+      security: []
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 10 }
+      responses:
+        "200":
+          description: Paginated notices
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/Notice" }
+                  meta: { $ref: "#/components/schemas/PaginationMeta" }
+    post:
+      tags: [Notices]
+      summary: Create a notice (admin)
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateNoticeRequest" }
+      responses:
+        "201":
+          description: Notice created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Notice" }
+
+  /notices/{slug}:
+    get:
+      tags: [Notices]
+      summary: Get a single notice by slug (public)
+      security: []
+      parameters:
+        - in: path
+          name: slug
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Notice detail
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Notice" }
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /notices/{id}:
+    patch:
+      tags: [Notices]
+      summary: Update a notice (admin)
+      security:
+        - sessionAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateNoticeRequest" }
+      responses:
+        "200":
+          description: Updated notice
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Notice" }
+    delete:
+      tags: [Notices]
+      summary: Delete a notice (admin)
+      security:
+        - sessionAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "204":
+          description: Deleted
+
+  /gallery-categories:
+    get:
+      tags: [Gallery]
+      summary: List gallery categories (public)
+      security: []
+      responses:
+        "200":
+          description: Categories, ordered
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/GalleryCategory" }
+    post:
+      tags: [Gallery]
+      summary: Create a gallery category (admin)
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateGalleryCategoryRequest" }
+      responses:
+        "201":
+          description: Category created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GalleryCategory" }
+
+  /gallery-categories/{id}:
+    patch:
+      tags: [Gallery]
+      summary: Rename/reorder a gallery category (admin)
+      security:
+        - sessionAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateGalleryCategoryRequest" }
+      responses:
+        "200":
+          description: Updated category
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GalleryCategory" }
+    delete:
+      tags: [Gallery]
+      summary: Delete a gallery category (admin) — only allowed when it has no gallery items
+      security:
+        - sessionAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "204":
+          description: Deleted
+        "409":
+          description: Category still has gallery items attached
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /gallery:
+    get:
+      tags: [Gallery]
+      summary: List gallery items (public)
+      security: []
+      parameters:
+        - in: query
+          name: categoryId
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Gallery items
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/GalleryItem" }
+    post:
+      tags: [Gallery]
+      summary: Add a gallery item (admin)
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateGalleryItemRequest" }
+      responses:
+        "201":
+          description: Gallery item created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GalleryItem" }
+
+  /gallery/{id}:
+    delete:
+      tags: [Gallery]
+      summary: Remove a gallery item (admin)
+      security:
+        - sessionAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "204":
+          description: Deleted
+
+  /testimonials:
+    get:
+      tags: [Testimonials]
+      summary: List approved testimonials (public) — pass includeUnapproved=true with auth for admin view
+      security: []
+      parameters:
+        - in: query
+          name: includeUnapproved
+          schema: { type: boolean, default: false }
+      responses:
+        "200":
+          description: Testimonials
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Testimonial" }
+    post:
+      tags: [Testimonials]
+      summary: Submit a testimonial (public — goes in unapproved until moderated)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateTestimonialRequest" }
+      responses:
+        "201":
+          description: Testimonial submitted, pending approval
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Testimonial" }
+
+  /testimonials/{id}/approve:
+    patch:
+      tags: [Testimonials]
+      summary: Approve a testimonial (admin)
+      security:
+        - sessionAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Approved testimonial
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Testimonial" }
+
+  /faculty:
+    get:
+      tags: [Faculty]
+      summary: List faculty members (public)
+      security: []
+      responses:
+        "200":
+          description: Faculty list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/FacultyMember" }
+    post:
+      tags: [Faculty]
+      summary: Add a faculty member (admin)
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateFacultyMemberRequest" }
+      responses:
+        "201":
+          description: Faculty member created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FacultyMember" }
+
+  /faculty/{id}:
+    delete:
+      tags: [Faculty]
+      summary: Remove a faculty member (admin)
+      security:
+        - sessionAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "204":
+          description: Deleted
+
+  /settings:
+    get:
+      tags: [Settings]
+      summary: Get site-wide settings (public — powers footer/contact)
+      security: []
+      responses:
+        "200":
+          description: Current settings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Settings" }
+    put:
+      tags: [Settings]
+      summary: Update site-wide settings (admin)
+      security:
+        - sessionAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UpdateSettingsRequest" }
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Settings" }
+
+  /dashboard/stats:
+    get:
+      tags: [Dashboard]
+      summary: Enquiry/admissions analytics for admin dashboard
+      security:
+        - sessionAuth: []
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DashboardStats" }
+
+  /faq:
+    get:
+      tags: [FAQ]
+      summary: List FAQ items (public)
+      security: []
+      responses:
+        "200":
+          description: FAQ items, ordered
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/FAQItem" }
+    post:
+      tags: [FAQ]
+      summary: Add an FAQ item (admin)
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateFAQItemRequest" }
+      responses:
+        "201":
+          description: FAQ item created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FAQItem" }
+
+  /faq/{id}:
+    patch:
+      tags: [FAQ]
+      summary: Update an FAQ item (admin)
+      security:
+        - sessionAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateFAQItemRequest" }
+      responses:
+        "200":
+          description: Updated FAQ item
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FAQItem" }
+    delete:
+      tags: [FAQ]
+      summary: Delete an FAQ item (admin)
+      security:
+        - sessionAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "204":
+          description: Deleted
+
+  /uploads:
+    post:
+      tags: [Uploads]
+      summary: Upload an image to Cloudinary (admin) — returns the hosted URL to store on any entity (gallery item, notice, faculty photo, principal photo)
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Uploaded — returns the Cloudinary secure URL
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UploadResponse" }
+        "400":
+          description: Invalid file (wrong type or too large)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /documents/generate:
+    post:
+      tags: [Documents]
+      summary: Generate a PDF (admission form / fee receipt / ID card) for an enquiry
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/GenerateDocumentRequest" }
+      responses:
+        "200":
+          description: Generated PDF
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary

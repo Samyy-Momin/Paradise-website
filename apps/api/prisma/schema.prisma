@@ -1,0 +1,195 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EnquiryBranch {
+  PARADISE_ENGLISH_SCHOOL
+  TENDER_KIDZ_PRE_SCHOOL
+}
+
+enum EnquiryStatus {
+  NEW
+  CONTACTED
+  VISIT_SCHEDULED
+  ADMITTED
+  LOST
+}
+
+model GalleryCategory {
+  id    String        @id @default(uuid())
+  name  String
+  slug  String        @unique
+  order Int           @default(0)
+  items GalleryItem[]
+}
+
+model User {
+  id            String        @id @default(uuid())
+  name          String
+  email         String        @unique
+  role          String
+  createdAt     DateTime      @default(now())
+  EnquiryNote   EnquiryNote[]
+  emailVerified Boolean       @default(false)
+  image         String?
+  updatedAt     DateTime      @updatedAt
+  banned        Boolean?      @default(false)
+  banReason     String?
+  banExpires    DateTime?
+  sessions      Session[]
+  accounts      Account[]
+
+  @@map("user")
+}
+
+model Enquiry {
+  id         String        @id @default(uuid())
+  parentName String
+  phone      String
+  childAge   String?
+  branch     EnquiryBranch
+  message    String?
+  status     EnquiryStatus @default(NEW)
+  source     String?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  notes      EnquiryNote[]
+}
+
+model EnquiryNote {
+  id        String   @id @default(uuid())
+  enquiryId String
+  authorId  String
+  note      String
+  createdAt DateTime @default(now())
+
+  enquiry Enquiry @relation(fields: [enquiryId], references: [id])
+  author  User    @relation(fields: [authorId], references: [id])
+}
+
+model Notice {
+  id            String    @id @default(uuid())
+  title         String
+  slug          String    @unique
+  body          String
+  imageUrl      String?
+  attachmentUrl String?
+  publishAt     DateTime?
+  createdAt     DateTime  @default(now())
+}
+
+model GalleryItem {
+  id         String          @id @default(uuid())
+  url        String
+  categoryId String
+  category   GalleryCategory @relation(fields: [categoryId], references: [id])
+  altText    String?
+  order      Int             @default(0)
+  createdAt  DateTime        @default(now())
+}
+
+model Testimonial {
+  id         String   @id @default(uuid())
+  parentName String
+  content    String
+  rating     Int
+  approved   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model FAQItem {
+  id        String   @id @default(uuid())
+  question  String
+  answer    String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model FacultyMember {
+  id             String  @id @default(uuid())
+  name           String
+  qualification  String?
+  subjectOrGrade String?
+  photoUrl       String?
+  order          Int     @default(0)
+}
+
+model Settings {
+  id               String  @id @default(uuid())
+  address          String?
+  phones           String?
+  hours            String?
+  instagramUrl     String?
+  facebookUrl      String?
+  threadsUrl       String?
+  principalName          String?
+  principalMessage       String?
+  principalImage         String?
+  heroImages             String?
+  marqueeText            String?
+  aboutImages            String?
+  parentInvolvementImage String?
+  instagramReels         String?
+  extracurricularImage   String?
+  eventsImage            String?
+}
+
+model DocumentTemplate {
+  id           String @id @default(uuid())
+  type         String
+  templateHtml String
+}
+
+model Session {
+  id             String   @id
+  expiresAt      DateTime
+  token          String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  ipAddress      String?
+  userAgent      String?
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  impersonatedBy String?
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}

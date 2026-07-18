@@ -4,12 +4,15 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function ContactPage() {
-  const address = "Opp. Jay Jalaram Medical, Bhandari Compound, Balaji Nagar, Bhiwandi, Thane 421302";
+  const address =
+    "Opp. Jay Jalaram Medical, Bhandari Compound, Balaji Nagar, Bhiwandi, Thane 421302";
   const phone = "+91 96071 77889";
   const phoneLink = phone.replace(/[^\d+]/g, "");
-  
+
   const whatsappNumber = "919607177889"; // Extracted from phone number
-  const whatsappMessage = encodeURIComponent("Hello Paradise English School, I would like to know more about admissions.");
+  const whatsappMessage = encodeURIComponent(
+    "Hello Paradise English School, I would like to know more about admissions.",
+  );
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
@@ -20,7 +23,8 @@ export default function ContactPage() {
             Get in Touch
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            We would love to hear from you. Visit our campus or reach out to us directly!
+            We would love to hear from you. Visit our campus or reach out to us
+            directly!
           </p>
         </div>
       </div>
@@ -41,8 +45,12 @@ export default function ContactPage() {
                         <MapPin className="w-6 h-6 text-school-blue" />
                       </div>
                       <div>
-                        <h3 className="font-heading font-bold text-lg text-slate-900 mb-1">Our Campus</h3>
-                        <p className="text-slate-600 leading-relaxed">{address}</p>
+                        <h3 className="font-heading font-bold text-lg text-slate-900 mb-1">
+                          Our Campus
+                        </h3>
+                        <p className="text-slate-600 leading-relaxed">
+                          {address}
+                        </p>
                       </div>
                     </CardContent>
                   </Card>
@@ -53,16 +61,18 @@ export default function ContactPage() {
                         <CardContent className="p-6 flex flex-col items-center justify-center text-center space-y-3 h-full">
                           <Phone className="w-8 h-8 text-school-red group-hover:text-white transition-colors" />
                           <div>
-                            <h3 className="font-heading font-bold text-lg mb-1">Call Us</h3>
+                            <h3 className="font-heading font-bold text-lg mb-1">
+                              Call Us
+                            </h3>
                             <p className="font-medium">{phone}</p>
                           </div>
                         </CardContent>
                       </Card>
                     </a>
 
-                    <a 
-                      href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`} 
-                      target="_blank" 
+                    <a
+                      href={`https://wa.me/${whatsappNumber}?text=${whatsappMessage}`}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="block h-full group"
                     >
@@ -70,7 +80,9 @@ export default function ContactPage() {
                         <CardContent className="p-6 flex flex-col items-center justify-center text-center space-y-3 h-full">
                           <MessageCircle className="w-8 h-8 text-[#25D366] group-hover:text-white transition-colors" />
                           <div>
-                            <h3 className="font-heading font-bold text-lg mb-1">WhatsApp</h3>
+                            <h3 className="font-heading font-bold text-lg mb-1">
+                              WhatsApp
+                            </h3>
                             <p className="font-medium">Chat with us</p>
                           </div>
                         </CardContent>

@@ -43,7 +43,13 @@ import {
 
 const categorySchema = z.object({
   name: z.string().min(1, "Name is required"),
-  slug: z.string().min(1, "Slug is required").regex(/^[a-z0-9-]+$/, "Slug must only contain lowercase letters, numbers, and hyphens"),
+  slug: z
+    .string()
+    .min(1, "Slug is required")
+    .regex(
+      /^[a-z0-9-]+$/,
+      "Slug must only contain lowercase letters, numbers, and hyphens",
+    ),
   order: z.coerce.number().int().default(0),
 });
 type CategoryFormValues = z.infer<typeof categorySchema>;
@@ -70,14 +76,18 @@ export default function GalleryCategoriesAdminPage() {
   const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery-categories`, {
-        credentials: "omit",
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery-categories`,
+        {
+          credentials: "omit",
+        },
+      );
       if (res.ok) {
         const data = await res.json();
         setCategories(data || []);
       }
-    } catch (err: any) { if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    } catch (err: any) {
+      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
     } finally {
       setLoading(false);
@@ -92,7 +102,10 @@ export default function GalleryCategoriesAdminPage() {
   const watchName = form.watch("name");
   useEffect(() => {
     if (watchName && !editingId) {
-      const slug = watchName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      const slug = watchName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
       form.setValue("slug", slug, { shouldValidate: true });
     }
   }, [watchName, editingId, form]);
@@ -138,7 +151,8 @@ export default function GalleryCategoriesAdminPage() {
       }
       setIsModalOpen(false);
       fetchCategories();
-    } catch (err: any) { if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    } catch (err: any) {
+      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
       alert(err.message || "Error saving category");
     }
@@ -157,14 +171,15 @@ export default function GalleryCategoriesAdminPage() {
         {
           method: "DELETE",
           credentials: "include",
-        }
+        },
       );
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.message || "Failed to delete category");
       }
       fetchCategories();
-    } catch (err: any) { if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    } catch (err: any) {
+      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
       alert(err.message || "Error deleting category");
     } finally {
@@ -176,8 +191,13 @@ export default function GalleryCategoriesAdminPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-heading font-bold text-slate-900">Gallery Categories</h1>
-        <Button onClick={openCreate} className="bg-school-blue hover:bg-school-blue/90">
+        <h1 className="text-3xl font-heading font-bold text-slate-900">
+          Gallery Categories
+        </h1>
+        <Button
+          onClick={openCreate}
+          className="bg-school-blue hover:bg-school-blue/90"
+        >
           <Plus className="w-4 h-4 mr-2" />
           Add Category
         </Button>
@@ -202,7 +222,10 @@ export default function GalleryCategoriesAdminPage() {
               </TableRow>
             ) : categories.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center text-slate-500">
+                <TableCell
+                  colSpan={4}
+                  className="h-24 text-center text-slate-500"
+                >
                   No categories found.
                 </TableCell>
               </TableRow>
@@ -210,13 +233,23 @@ export default function GalleryCategoriesAdminPage() {
               categories.map((category) => (
                 <TableRow key={category.id}>
                   <TableCell className="font-medium">{category.name}</TableCell>
-                  <TableCell className="text-slate-500 font-mono text-xs">{category.slug}</TableCell>
+                  <TableCell className="text-slate-500 font-mono text-xs">
+                    {category.slug}
+                  </TableCell>
                   <TableCell>{category.order}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(category)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => openEdit(category)}
+                    >
                       <Pencil className="w-4 h-4 text-slate-600" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => confirmDelete(category.id)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => confirmDelete(category.id)}
+                    >
                       <Trash2 className="w-4 h-4 text-red-600" />
                     </Button>
                   </TableCell>
@@ -231,7 +264,9 @@ export default function GalleryCategoriesAdminPage() {
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
-            <DialogTitle>{editingId ? "Edit Category" : "Add Category"}</DialogTitle>
+            <DialogTitle>
+              {editingId ? "Edit Category" : "Add Category"}
+            </DialogTitle>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -275,11 +310,17 @@ export default function GalleryCategoriesAdminPage() {
                 )}
               />
               <div className="flex justify-end space-x-2 pt-4">
-                <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsModalOpen(false)}
+                >
                   Cancel
                 </Button>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  {form.formState.isSubmitting && (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  )}
                   Save
                 </Button>
               </div>
@@ -294,12 +335,16 @@ export default function GalleryCategoriesAdminPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the category.
+              This action cannot be undone. This will permanently delete the
+              category.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

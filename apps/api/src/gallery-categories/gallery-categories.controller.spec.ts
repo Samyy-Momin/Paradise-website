@@ -9,7 +9,9 @@ describe('GalleryCategoriesController', () => {
       controllers: [GalleryCategoriesController],
     }).compile();
 
-    controller = module.get<GalleryCategoriesController>(GalleryCategoriesController);
+    controller = module.get<GalleryCategoriesController>(
+      GalleryCategoriesController,
+    );
   });
 
   it('should be defined', () => {

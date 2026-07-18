@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Plus, Trash2, Loader2, Upload, Link as LinkIcon, X, FileImage } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Loader2,
+  Upload,
+  Link as LinkIcon,
+  X,
+  FileImage,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -52,12 +60,18 @@ export default function GalleryAdminPage() {
     try {
       setLoading(true);
       const [itemsRes, catsRes] = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery`, {
-          credentials: "omit",
-        }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery-categories`, {
-          credentials: "omit",
-        }),
+        fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery`,
+          {
+            credentials: "omit",
+          },
+        ),
+        fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery-categories`,
+          {
+            credentials: "omit",
+          },
+        ),
       ]);
 
       if (itemsRes.ok && catsRes.ok) {
@@ -66,7 +80,8 @@ export default function GalleryAdminPage() {
         setItems(itemsData || []);
         setCategories(catsData || []);
       }
-    } catch (err: any) { if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    } catch (err: any) {
+      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
     } finally {
       setLoading(false);
@@ -125,12 +140,15 @@ export default function GalleryAdminPage() {
   };
 
   const createGalleryItem = async (url: string) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ url, categoryId, altText }),
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ url, categoryId, altText }),
+      },
+    );
     if (!res.ok) throw new Error("Failed to save gallery item");
   };
 
@@ -155,7 +173,8 @@ export default function GalleryAdminPage() {
       }
       setIsModalOpen(false);
       fetchData();
-    } catch (err: any) { if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    } catch (err: any) {
+      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
       alert(err.message || "Error saving images.");
     } finally {
@@ -176,11 +195,12 @@ export default function GalleryAdminPage() {
         {
           method: "DELETE",
           credentials: "include",
-        }
+        },
       );
       if (!res.ok) throw new Error("Failed to delete gallery item");
       fetchData();
-    } catch (err: any) { if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    } catch (err: any) {
+      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
       alert("Error deleting");
     } finally {
@@ -192,8 +212,13 @@ export default function GalleryAdminPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-heading font-bold text-slate-900">Gallery</h1>
-        <Button onClick={openCreate} className="bg-school-blue hover:bg-school-blue/90">
+        <h1 className="text-3xl font-heading font-bold text-slate-900">
+          Gallery
+        </h1>
+        <Button
+          onClick={openCreate}
+          className="bg-school-blue hover:bg-school-blue/90"
+        >
           <Plus className="w-4 h-4 mr-2" />
           Add Images
         </Button>
@@ -218,7 +243,10 @@ export default function GalleryAdminPage() {
               </TableRow>
             ) : items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center text-slate-500">
+                <TableCell
+                  colSpan={4}
+                  className="h-24 text-center text-slate-500"
+                >
                   No images found.
                 </TableCell>
               </TableRow>
@@ -236,10 +264,16 @@ export default function GalleryAdminPage() {
                       }}
                     />
                   </TableCell>
-                  <TableCell className="font-medium">{item.category?.name || "Unknown"}</TableCell>
+                  <TableCell className="font-medium">
+                    {item.category?.name || "Unknown"}
+                  </TableCell>
                   <TableCell>{item.altText}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => confirmDelete(item.id)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => confirmDelete(item.id)}
+                    >
                       <Trash2 className="w-4 h-4 text-red-600" />
                     </Button>
                   </TableCell>
@@ -259,7 +293,9 @@ export default function GalleryAdminPage() {
           <div className="space-y-4 py-2">
             {/* Common Fields */}
             <div>
-              <label className="text-sm font-medium text-slate-900 mb-1 block">Category</label>
+              <label className="text-sm font-medium text-slate-900 mb-1 block">
+                Category
+              </label>
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
@@ -274,20 +310,26 @@ export default function GalleryAdminPage() {
               </select>
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-900 mb-1 block">Alt Text</label>
+              <label className="text-sm font-medium text-slate-900 mb-1 block">
+                Alt Text
+              </label>
               <Input
                 placeholder="e.g. Students in science lab"
                 value={altText}
                 onChange={(e) => setAltText(e.target.value)}
               />
-              <p className="text-xs text-slate-500 mt-1">This text will apply to all images uploaded in this batch.</p>
+              <p className="text-xs text-slate-500 mt-1">
+                This text will apply to all images uploaded in this batch.
+              </p>
             </div>
 
             {/* Upload Mode Toggle */}
             <div className="flex border rounded-lg p-1 bg-slate-50">
               <button
                 className={`flex-1 py-2 text-sm font-medium rounded-md flex items-center justify-center transition-colors ${
-                  uploadMode === "upload" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"
+                  uploadMode === "upload"
+                    ? "bg-white shadow-sm text-slate-900"
+                    : "text-slate-500 hover:text-slate-700"
                 }`}
                 onClick={() => setUploadMode("upload")}
               >
@@ -295,7 +337,9 @@ export default function GalleryAdminPage() {
               </button>
               <button
                 className={`flex-1 py-2 text-sm font-medium rounded-md flex items-center justify-center transition-colors ${
-                  uploadMode === "link" ? "bg-white shadow-sm text-slate-900" : "text-slate-500 hover:text-slate-700"
+                  uploadMode === "link"
+                    ? "bg-white shadow-sm text-slate-900"
+                    : "text-slate-500 hover:text-slate-700"
                 }`}
                 onClick={() => setUploadMode("link")}
               >
@@ -321,18 +365,26 @@ export default function GalleryAdminPage() {
                   <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-4">
                     <Upload className="h-6 w-6 text-slate-400" />
                   </div>
-                  <p className="text-sm font-medium text-slate-700 mb-1">Click to select multiple images</p>
+                  <p className="text-sm font-medium text-slate-700 mb-1">
+                    Click to select multiple images
+                  </p>
                   <p className="text-xs text-slate-500">JPG, PNG, or WebP</p>
                 </div>
                 {filesToUpload.length > 0 && (
                   <div className="bg-slate-50 border rounded-lg p-3 space-y-2 max-h-40 overflow-y-auto">
                     {filesToUpload.map((file, i) => (
-                      <div key={i} className="flex items-center justify-between bg-white border p-2 rounded-md">
+                      <div
+                        key={i}
+                        className="flex items-center justify-between bg-white border p-2 rounded-md"
+                      >
                         <div className="flex items-center space-x-2 overflow-hidden">
                           <FileImage className="w-4 h-4 text-slate-400 shrink-0" />
                           <span className="text-xs truncate">{file.name}</span>
                         </div>
-                        <button onClick={() => removeFile(i)} className="text-red-500 hover:text-red-700 p-1 shrink-0">
+                        <button
+                          onClick={() => removeFile(i)}
+                          className="text-red-500 hover:text-red-700 p-1 shrink-0"
+                        >
                           <X className="w-4 h-4" />
                         </button>
                       </div>
@@ -354,14 +406,23 @@ export default function GalleryAdminPage() {
                         onChange={(e) => updateExternalLink(i, e.target.value)}
                       />
                       {externalLinks.length > 1 && (
-                        <Button variant="ghost" size="icon" onClick={() => removeExternalLink(i)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeExternalLink(i)}
+                        >
                           <Trash2 className="w-4 h-4 text-red-500" />
                         </Button>
                       )}
                     </div>
                   ))}
                 </div>
-                <Button variant="outline" size="sm" onClick={addExternalLink} className="w-full border-dashed">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={addExternalLink}
+                  className="w-full border-dashed"
+                >
                   <Plus className="w-4 h-4 mr-2" /> Add Another Link
                 </Button>
               </div>
@@ -369,11 +430,17 @@ export default function GalleryAdminPage() {
           </div>
 
           <div className="flex justify-end space-x-2 pt-4 border-t">
-            <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)}>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setIsModalOpen(false)}
+            >
               Cancel
             </Button>
             <Button onClick={onSubmitBulk} disabled={isSubmitting}>
-              {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {isSubmitting && (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              )}
               {isSubmitting ? "Uploading..." : "Save Images"}
             </Button>
           </div>
@@ -384,11 +451,16 @@ export default function GalleryAdminPage() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>This will permanently delete this gallery item.</AlertDialogDescription>
+            <AlertDialogDescription>
+              This will permanently delete this gallery item.
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

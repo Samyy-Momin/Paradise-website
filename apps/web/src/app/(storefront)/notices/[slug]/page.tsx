@@ -8,18 +8,26 @@ export const revalidate = 60;
 
 async function getNotice(id: string) {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/notices/${id}`, {
-      cache: "no-store",
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/notices/${id}`,
+      {
+        cache: "no-store",
+      },
+    );
     if (!res.ok) return null;
     return res.json();
-  } catch (error: any) { if (error?.digest === 'DYNAMIC_SERVER_USAGE') throw error;
+  } catch (error: any) {
+    if (error?.digest === "DYNAMIC_SERVER_USAGE") throw error;
     console.error("Failed to fetch notice:", error);
     return null;
   }
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}) {
   const notice = await getNotice(params.slug);
   if (!notice) {
     return { title: "Notice Not Found" };
@@ -30,7 +38,11 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function NoticeDetailPage({ params }: { params: { slug: string } }) {
+export default async function NoticeDetailPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
   const notice = await getNotice(params.slug);
 
   if (!notice) {
@@ -38,14 +50,19 @@ export default async function NoticeDetailPage({ params }: { params: { slug: str
   }
 
   const attachmentUrl = notice.attachmentUrl as string | null;
-  
-  const isImageOrPdf = attachmentUrl?.match(/\.(pdf|jpg|jpeg|png|webp|gif)(\?.*)?$/i);
+
+  const isImageOrPdf = attachmentUrl?.match(
+    /\.(pdf|jpg|jpeg|png|webp|gif)(\?.*)?$/i,
+  );
   const isDoc = attachmentUrl?.match(/\.(doc|docx)(\?.*)?$/i);
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 pt-24 pb-16">
       <div className="container max-w-4xl">
-        <Link href="/notices" className="inline-flex items-center text-school-blue hover:underline mb-8 font-medium">
+        <Link
+          href="/notices"
+          className="inline-flex items-center text-school-blue hover:underline mb-8 font-medium"
+        >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to all notices
         </Link>
@@ -54,9 +71,11 @@ export default async function NoticeDetailPage({ params }: { params: { slug: str
           <div className="p-8 md:p-12">
             <div className="flex items-center text-slate-500 text-sm font-medium mb-4">
               <CalendarDays className="w-5 h-5 mr-2 text-school-blue" />
-              {notice.publishAt ? format(new Date(notice.publishAt), "MMMM d, yyyy") : "No date"}
+              {notice.publishAt
+                ? format(new Date(notice.publishAt), "MMMM d, yyyy")
+                : "No date"}
             </div>
-            
+
             <h1 className="text-3xl md:text-4xl font-heading font-extrabold text-slate-900 mb-8 leading-tight">
               {notice.title}
             </h1>
@@ -64,7 +83,11 @@ export default async function NoticeDetailPage({ params }: { params: { slug: str
             {notice.imageUrl && (
               <div className="mb-8 rounded-2xl overflow-hidden shadow-sm border border-slate-100">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={notice.imageUrl} alt={notice.title} className="w-full h-auto max-h-[500px] object-cover" />
+                <img
+                  src={notice.imageUrl}
+                  alt={notice.title}
+                  className="w-full h-auto max-h-[500px] object-cover"
+                />
               </div>
             )}
 
@@ -78,10 +101,14 @@ export default async function NoticeDetailPage({ params }: { params: { slug: str
                   <FileText className="w-5 h-5 mr-2 text-school-blue" />
                   Attached Document
                 </h3>
-                
+
                 {isImageOrPdf ? (
                   <div className="w-full aspect-video rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
-                    <iframe src={`${attachmentUrl}#toolbar=0`} className="w-full h-full" title="Document Preview" />
+                    <iframe
+                      src={`${attachmentUrl}#toolbar=0`}
+                      className="w-full h-full"
+                      title="Document Preview"
+                    />
                   </div>
                 ) : (
                   <a
@@ -95,10 +122,18 @@ export default async function NoticeDetailPage({ params }: { params: { slug: str
                       <span className="font-bold text-sm">DOC</span>
                     </div>
                     <div className="flex flex-col flex-1 mr-6">
-                      <span className="text-slate-900 font-medium group-hover:text-school-blue">Download Document</span>
-                      <span className="text-slate-500 text-sm">Word Document</span>
+                      <span className="text-slate-900 font-medium group-hover:text-school-blue">
+                        Download Document
+                      </span>
+                      <span className="text-slate-500 text-sm">
+                        Word Document
+                      </span>
                     </div>
-                    <Button variant="default" size="sm" className="shrink-0 bg-school-blue hover:bg-school-blue/90">
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="shrink-0 bg-school-blue hover:bg-school-blue/90"
+                    >
                       <Download className="w-4 h-4 mr-2" />
                       Download
                     </Button>

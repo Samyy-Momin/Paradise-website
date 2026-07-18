@@ -3,25 +3,33 @@ import { GalleryClient } from "../../gallery/GalleryClient";
 
 export const metadata: Metadata = {
   title: "Photo Gallery | Paradise English School",
-  description: "Browse moments from our campus, events, and activities at Paradise English School and Tender Kidz Pre-School.",
+  description:
+    "Browse moments from our campus, events, and activities at Paradise English School and Tender Kidz Pre-School.",
 };
 
 async function getGalleryData() {
   try {
     const [itemsRes, catsRes] = await Promise.all([
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery`, {
-        cache: "no-store",
-      }),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery-categories`, {
-        cache: "no-store",
-      }),
+      fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery`,
+        {
+          cache: "no-store",
+        },
+      ),
+      fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery-categories`,
+        {
+          cache: "no-store",
+        },
+      ),
     ]);
-    
+
     return {
       items: itemsRes.ok ? await itemsRes.json() : [],
       categories: catsRes.ok ? await catsRes.json() : [],
     };
-  } catch (error: any) { if (error?.digest === 'DYNAMIC_SERVER_USAGE') throw error;
+  } catch (error: any) {
+    if (error?.digest === "DYNAMIC_SERVER_USAGE") throw error;
     console.error("Failed to fetch gallery:", error);
     return { items: [], categories: [] };
   }
@@ -39,7 +47,8 @@ export default async function GalleryPage() {
             Our Gallery
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            A glimpse into the vibrant life, events, and campus of Paradise English School.
+            A glimpse into the vibrant life, events, and campus of Paradise
+            English School.
           </p>
         </div>
       </div>

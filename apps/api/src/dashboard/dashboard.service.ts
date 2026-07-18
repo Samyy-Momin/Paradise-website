@@ -8,12 +8,26 @@ export class DashboardService {
 
   async getStats() {
     const now = new Date();
-    
+
     const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+    const endOfLastMonth = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      0,
+      23,
+      59,
+      59,
+      999,
+    );
 
-    const [enquiriesThisMonth, enquiriesLastMonth, allEnquiries, noticesCount, galleryCount] = await Promise.all([
+    const [
+      enquiriesThisMonth,
+      enquiriesLastMonth,
+      allEnquiries,
+      noticesCount,
+      galleryCount,
+    ] = await Promise.all([
       this.prisma.client.enquiry.count({
         where: { createdAt: { gte: startOfThisMonth } },
       }),
@@ -34,7 +48,8 @@ export class DashboardService {
     };
 
     for (const enq of allEnquiries) {
-      conversionRateByStage[enq.status] = (conversionRateByStage[enq.status] || 0) + 1;
+      conversionRateByStage[enq.status] =
+        (conversionRateByStage[enq.status] || 0) + 1;
       enquiriesByBranch[enq.branch] = (enquiriesByBranch[enq.branch] || 0) + 1;
     }
 

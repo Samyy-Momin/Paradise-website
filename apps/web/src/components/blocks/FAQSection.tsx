@@ -23,16 +23,17 @@ export function FAQSection({ items }: { items: FAQItemProps[] }) {
             Frequently Asked Questions
           </h2>
           <p className="text-slate-600 text-lg">
-            Find answers to common questions about admissions, campus life, and academics.
+            Find answers to common questions about admissions, campus life, and
+            academics.
           </p>
         </div>
       </ScrollReveal>
-      
+
       <ScrollReveal delay={0.1}>
         <Accordion type="single" collapsible className="w-full space-y-4">
           {items.map((item) => (
-            <AccordionItem 
-              key={item.id} 
+            <AccordionItem
+              key={item.id}
               value={item.id}
               className="bg-white border border-slate-200 rounded-xl shadow-sm data-[state=open]:border-school-blue/50 data-[state=open]:ring-2 data-[state=open]:ring-school-blue/20 transition-all duration-200"
             >

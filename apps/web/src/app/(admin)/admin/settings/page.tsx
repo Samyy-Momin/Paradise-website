@@ -24,9 +24,21 @@ const settingsSchema = z.object({
   address: z.string().optional(),
   phones: z.array(z.object({ value: z.string() })).optional(),
   hours: z.string().optional(),
-  instagramUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-  facebookUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-  threadsUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  instagramUrl: z
+    .string()
+    .url("Must be a valid URL")
+    .optional()
+    .or(z.literal("")),
+  facebookUrl: z
+    .string()
+    .url("Must be a valid URL")
+    .optional()
+    .or(z.literal("")),
+  threadsUrl: z
+    .string()
+    .url("Must be a valid URL")
+    .optional()
+    .or(z.literal("")),
   principalName: z.string().optional(),
   principalMessage: z.string().optional(),
   principalImage: z.string().optional(),
@@ -65,22 +77,38 @@ export default function SettingsAdminPage() {
     },
   });
 
-  const { fields: phoneFields, append: appendPhone, remove: removePhone } = useFieldArray({
+  const {
+    fields: phoneFields,
+    append: appendPhone,
+    remove: removePhone,
+  } = useFieldArray({
     control: form.control,
     name: "phones",
   });
 
-  const { fields: heroFields, append: appendHero, remove: removeHero } = useFieldArray({
+  const {
+    fields: heroFields,
+    append: appendHero,
+    remove: removeHero,
+  } = useFieldArray({
     control: form.control,
     name: "heroImages",
   });
 
-  const { fields: aboutFields, append: appendAbout, remove: removeAbout } = useFieldArray({
+  const {
+    fields: aboutFields,
+    append: appendAbout,
+    remove: removeAbout,
+  } = useFieldArray({
     control: form.control,
     name: "aboutImages",
   });
 
-  const { fields: reelFields, append: appendReel, remove: removeReel } = useFieldArray({
+  const {
+    fields: reelFields,
+    append: appendReel,
+    remove: removeReel,
+  } = useFieldArray({
     control: form.control,
     name: "instagramReels",
   });
@@ -88,14 +116,19 @@ export default function SettingsAdminPage() {
   useEffect(() => {
     async function fetchSettings() {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/settings`, {
-          credentials: "omit",
-        });
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/settings`,
+          {
+            credentials: "omit",
+          },
+        );
         if (res.ok) {
           const data = await res.json();
           form.reset({
             address: data.address || "",
-            phones: data.phones ? data.phones.map((p: string) => ({ value: p })) : [],
+            phones: data.phones
+              ? data.phones.map((p: string) => ({ value: p }))
+              : [],
             hours: data.hours || "",
             instagramUrl: data.instagramUrl || "",
             facebookUrl: data.facebookUrl || "",
@@ -104,15 +137,22 @@ export default function SettingsAdminPage() {
             principalMessage: data.principalMessage || "",
             principalImage: data.principalImage || "",
             marqueeText: data.marqueeText || "",
-            heroImages: data.heroImages ? data.heroImages.map((p: string) => ({ value: p })) : [],
-            aboutImages: data.aboutImages ? data.aboutImages.map((p: string) => ({ value: p })) : [],
+            heroImages: data.heroImages
+              ? data.heroImages.map((p: string) => ({ value: p }))
+              : [],
+            aboutImages: data.aboutImages
+              ? data.aboutImages.map((p: string) => ({ value: p }))
+              : [],
             parentInvolvementImage: data.parentInvolvementImage || "",
-            instagramReels: data.instagramReels ? data.instagramReels.map((p: string) => ({ value: p })) : [],
+            instagramReels: data.instagramReels
+              ? data.instagramReels.map((p: string) => ({ value: p }))
+              : [],
             extracurricularImage: data.extracurricularImage || "",
             eventsImage: data.eventsImage || "",
           });
         }
-      } catch (err: any) { if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+      } catch (err: any) {
+        if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
         console.error(err);
       } finally {
         setLoading(false);
@@ -125,22 +165,34 @@ export default function SettingsAdminPage() {
     try {
       const payload = {
         ...data,
-        phones: data.phones ? data.phones.map(p => p.value).filter(Boolean) : [],
-        heroImages: data.heroImages ? data.heroImages.map(p => p.value).filter(Boolean) : [],
-        aboutImages: data.aboutImages ? data.aboutImages.map(p => p.value).filter(Boolean) : [],
-        instagramReels: data.instagramReels ? data.instagramReels.map(p => p.value).filter(Boolean) : [],
+        phones: data.phones
+          ? data.phones.map((p) => p.value).filter(Boolean)
+          : [],
+        heroImages: data.heroImages
+          ? data.heroImages.map((p) => p.value).filter(Boolean)
+          : [],
+        aboutImages: data.aboutImages
+          ? data.aboutImages.map((p) => p.value).filter(Boolean)
+          : [],
+        instagramReels: data.instagramReels
+          ? data.instagramReels.map((p) => p.value).filter(Boolean)
+          : [],
       };
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/settings`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/settings`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload),
+        },
+      );
 
       if (!res.ok) throw new Error("Failed to save settings");
       alert("Settings saved successfully!");
-    } catch (err: any) { if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    } catch (err: any) {
+      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
       alert("Error saving settings");
     }
@@ -157,8 +209,12 @@ export default function SettingsAdminPage() {
   return (
     <div className="space-y-6 max-w-4xl">
       <div>
-        <h1 className="text-3xl font-heading font-bold text-slate-900">Site Settings</h1>
-        <p className="text-slate-500">Manage global site information and configurations.</p>
+        <h1 className="text-3xl font-heading font-bold text-slate-900">
+          Site Settings
+        </h1>
+        <p className="text-slate-500">
+          Manage global site information and configurations.
+        </p>
       </div>
 
       <div className="bg-white rounded-lg shadow border border-slate-200 p-6">
@@ -174,7 +230,9 @@ export default function SettingsAdminPage() {
               </TabsList>
 
               <TabsContent value="general" className="space-y-6">
-                <h2 className="text-xl font-bold border-b pb-2">Global Settings</h2>
+                <h2 className="text-xl font-bold border-b pb-2">
+                  Global Settings
+                </h2>
                 <FormField
                   control={form.control}
                   name="marqueeText"
@@ -191,30 +249,42 @@ export default function SettingsAdminPage() {
               </TabsContent>
 
               <TabsContent value="homepage" className="space-y-6">
-                <h2 className="text-xl font-bold border-b pb-2">Home Page Configuration</h2>
-                
+                <h2 className="text-xl font-bold border-b pb-2">
+                  Home Page Configuration
+                </h2>
+
                 <div className="space-y-4">
-                  <div className="text-sm font-medium leading-none mb-2">Hero Section Slideshow Images</div>
-                  <p className="text-sm text-slate-500">Add 3-5 images to display in the main hero slider.</p>
+                  <div className="text-sm font-medium leading-none mb-2">
+                    Hero Section Slideshow Images
+                  </div>
+                  <p className="text-sm text-slate-500">
+                    Add 3-5 images to display in the main hero slider.
+                  </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {heroFields.map((field, index) => (
-                      <div key={field.id} className="relative p-4 border rounded-xl bg-slate-50">
+                      <div
+                        key={field.id}
+                        className="relative p-4 border rounded-xl bg-slate-50"
+                      >
                         <FormField
                           control={form.control}
                           name={`heroImages.${index}.value`}
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
-                                <FileUploadField value={field.value || ""} onChange={field.onChange} />
+                                <FileUploadField
+                                  value={field.value || ""}
+                                  onChange={field.onChange}
+                                />
                               </FormControl>
                             </FormItem>
                           )}
                         />
-                        <Button 
-                          type="button" 
-                          variant="destructive" 
-                          size="icon" 
-                          className="absolute -top-3 -right-3 h-8 w-8 rounded-full" 
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute -top-3 -right-3 h-8 w-8 rounded-full"
                           onClick={() => removeHero(index)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -222,33 +292,47 @@ export default function SettingsAdminPage() {
                       </div>
                     ))}
                   </div>
-                  <Button type="button" variant="outline" onClick={() => appendHero({ value: "" })}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => appendHero({ value: "" })}
+                  >
                     <Plus className="h-4 w-4 mr-2" /> Add Hero Image
                   </Button>
                 </div>
 
                 <div className="space-y-4 pt-6 border-t">
-                  <div className="text-sm font-medium leading-none mb-2">Welcome Snapshot Images (About Section)</div>
-                  <p className="text-sm text-slate-500">Images for the "Welcome to Paradise" section slideshow.</p>
+                  <div className="text-sm font-medium leading-none mb-2">
+                    Welcome Snapshot Images (About Section)
+                  </div>
+                  <p className="text-sm text-slate-500">
+                    Images for the "Welcome to Paradise" section slideshow.
+                  </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {aboutFields.map((field, index) => (
-                      <div key={field.id} className="relative p-4 border rounded-xl bg-slate-50">
+                      <div
+                        key={field.id}
+                        className="relative p-4 border rounded-xl bg-slate-50"
+                      >
                         <FormField
                           control={form.control}
                           name={`aboutImages.${index}.value`}
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
-                                <FileUploadField value={field.value || ""} onChange={field.onChange} />
+                                <FileUploadField
+                                  value={field.value || ""}
+                                  onChange={field.onChange}
+                                />
                               </FormControl>
                             </FormItem>
                           )}
                         />
-                        <Button 
-                          type="button" 
-                          variant="destructive" 
-                          size="icon" 
-                          className="absolute -top-3 -right-3 h-8 w-8 rounded-full" 
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute -top-3 -right-3 h-8 w-8 rounded-full"
                           onClick={() => removeAbout(index)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -256,7 +340,11 @@ export default function SettingsAdminPage() {
                       </div>
                     ))}
                   </div>
-                  <Button type="button" variant="outline" onClick={() => appendAbout({ value: "" })}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => appendAbout({ value: "" })}
+                  >
                     <Plus className="h-4 w-4 mr-2" /> Add Snapshot Image
                   </Button>
                 </div>
@@ -269,9 +357,9 @@ export default function SettingsAdminPage() {
                       <FormItem>
                         <FormLabel>Partnering with Parents Image</FormLabel>
                         <FormControl>
-                          <FileUploadField 
-                            value={field.value || ""} 
-                            onChange={field.onChange} 
+                          <FileUploadField
+                            value={field.value || ""}
+                            onChange={field.onChange}
                           />
                         </FormControl>
                         <FormMessage />
@@ -281,33 +369,47 @@ export default function SettingsAdminPage() {
                 </div>
 
                 <div className="space-y-4 pt-6 border-t">
-                  <div className="text-sm font-medium leading-none mb-2">Instagram Reels Links</div>
+                  <div className="text-sm font-medium leading-none mb-2">
+                    Instagram Reels Links
+                  </div>
                   <p className="text-sm text-slate-500">
-                    Add Instagram Reel links to display in the new Reels section.
+                    Add Instagram Reel links to display in the new Reels
+                    section.
                   </p>
                   <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-md my-4">
                     <p className="text-sm text-blue-700 font-medium">
-                      💡 To achieve the exact looping, UI-less reel experience without the "View Profile" header, you must upload raw video files (.mp4)! Instagram's official iframe embeds strictly prohibit developers from hiding the header, removing comments, or autoplaying the videos. Use the Upload Image tab in the field below to upload an MP4 file.
+                      💡 To achieve the exact looping, UI-less reel experience
+                      without the "View Profile" header, you must upload raw
+                      video files (.mp4)! Instagram's official iframe embeds
+                      strictly prohibit developers from hiding the header,
+                      removing comments, or autoplaying the videos. Use the
+                      Upload Image tab in the field below to upload an MP4 file.
                     </p>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {reelFields.map((field, index) => (
-                      <div key={field.id} className="relative p-4 border rounded-xl bg-slate-50">
+                      <div
+                        key={field.id}
+                        className="relative p-4 border rounded-xl bg-slate-50"
+                      >
                         <FormField
                           control={form.control}
                           name={`instagramReels.${index}.value`}
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
-                                <FileUploadField value={field.value || ""} onChange={field.onChange} />
+                                <FileUploadField
+                                  value={field.value || ""}
+                                  onChange={field.onChange}
+                                />
                               </FormControl>
                             </FormItem>
                           )}
                         />
-                        <Button 
-                          type="button" 
-                          variant="destructive" 
-                          size="icon" 
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
                           className="absolute -top-3 -right-3 h-8 w-8 rounded-full"
                           onClick={() => removeReel(index)}
                         >
@@ -316,14 +418,20 @@ export default function SettingsAdminPage() {
                       </div>
                     ))}
                   </div>
-                  <Button type="button" variant="outline" onClick={() => appendReel({ value: "" })}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => appendReel({ value: "" })}
+                  >
                     <Plus className="h-4 w-4 mr-2" /> Add Reel / Video
                   </Button>
                 </div>
               </TabsContent>
 
               <TabsContent value="aboutpage" className="space-y-6">
-                <h2 className="text-xl font-bold border-b pb-2">Principal/Founder Profile</h2>
+                <h2 className="text-xl font-bold border-b pb-2">
+                  Principal/Founder Profile
+                </h2>
                 <FormField
                   control={form.control}
                   name="principalName"
@@ -344,9 +452,9 @@ export default function SettingsAdminPage() {
                     <FormItem>
                       <FormLabel>Principal Image</FormLabel>
                       <FormControl>
-                        <FileUploadField 
-                          value={field.value || ""} 
-                          onChange={field.onChange} 
+                        <FileUploadField
+                          value={field.value || ""}
+                          onChange={field.onChange}
                         />
                       </FormControl>
                       <FormMessage />
@@ -360,10 +468,10 @@ export default function SettingsAdminPage() {
                     <FormItem>
                       <FormLabel>Principal Message</FormLabel>
                       <FormControl>
-                        <Textarea 
-                          placeholder="Welcome message from the principal..." 
+                        <Textarea
+                          placeholder="Welcome message from the principal..."
                           className="min-h-[150px]"
-                          {...field} 
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
@@ -373,7 +481,9 @@ export default function SettingsAdminPage() {
               </TabsContent>
 
               <TabsContent value="studentlife" className="space-y-6">
-                <h2 className="text-xl font-bold border-b pb-2">Student Life Images</h2>
+                <h2 className="text-xl font-bold border-b pb-2">
+                  Student Life Images
+                </h2>
                 <FormField
                   control={form.control}
                   name="extracurricularImage"
@@ -381,16 +491,16 @@ export default function SettingsAdminPage() {
                     <FormItem>
                       <FormLabel>Extracurricular Activities Image</FormLabel>
                       <FormControl>
-                        <FileUploadField 
-                          value={field.value || ""} 
-                          onChange={field.onChange} 
+                        <FileUploadField
+                          value={field.value || ""}
+                          onChange={field.onChange}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="eventsImage"
@@ -398,9 +508,9 @@ export default function SettingsAdminPage() {
                     <FormItem>
                       <FormLabel>Events & Highlights Image</FormLabel>
                       <FormControl>
-                        <FileUploadField 
-                          value={field.value || ""} 
-                          onChange={field.onChange} 
+                        <FileUploadField
+                          value={field.value || ""}
+                          onChange={field.onChange}
                         />
                       </FormControl>
                       <FormMessage />
@@ -410,7 +520,9 @@ export default function SettingsAdminPage() {
               </TabsContent>
 
               <TabsContent value="social" className="space-y-6">
-                <h2 className="text-xl font-bold border-b pb-2">Contact Information</h2>
+                <h2 className="text-xl font-bold border-b pb-2">
+                  Contact Information
+                </h2>
                 <FormField
                   control={form.control}
                   name="address"
@@ -426,7 +538,9 @@ export default function SettingsAdminPage() {
                 />
 
                 <div className="space-y-4">
-                  <div className="text-sm font-medium leading-none mb-2">Phone Numbers</div>
+                  <div className="text-sm font-medium leading-none mb-2">
+                    Phone Numbers
+                  </div>
                   <div className="flex flex-col gap-3">
                     {phoneFields.map((field, index) => (
                       <div key={field.id} className="flex items-center gap-2">
@@ -436,14 +550,17 @@ export default function SettingsAdminPage() {
                           render={({ field }) => (
                             <FormItem className="flex-1">
                               <FormControl>
-                                <Input placeholder="+91 98765 43210" {...field} />
+                                <Input
+                                  placeholder="+91 98765 43210"
+                                  {...field}
+                                />
                               </FormControl>
                             </FormItem>
                           )}
                         />
-                        <Button 
-                          type="button" 
-                          variant="destructive" 
+                        <Button
+                          type="button"
+                          variant="destructive"
                           size="icon"
                           onClick={() => removePhone(index)}
                         >
@@ -451,9 +568,9 @@ export default function SettingsAdminPage() {
                         </Button>
                       </div>
                     ))}
-                    <Button 
-                      type="button" 
-                      variant="outline" 
+                    <Button
+                      type="button"
+                      variant="outline"
                       className="w-fit"
                       onClick={() => appendPhone({ value: "" })}
                     >
@@ -469,14 +586,19 @@ export default function SettingsAdminPage() {
                     <FormItem>
                       <FormLabel>Hours of Operation</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Mon-Sat: 10:00 Am - 5:00 Pm" {...field} />
+                        <Textarea
+                          placeholder="Mon-Sat: 10:00 Am - 5:00 Pm"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                <h2 className="text-xl font-bold border-b pb-2 pt-6">Social Links</h2>
+                <h2 className="text-xl font-bold border-b pb-2 pt-6">
+                  Social Links
+                </h2>
                 <FormField
                   control={form.control}
                   name="instagramUrl"
@@ -484,7 +606,10 @@ export default function SettingsAdminPage() {
                     <FormItem>
                       <FormLabel>Instagram URL</FormLabel>
                       <FormControl>
-                        <Input placeholder="https://instagram.com/..." {...field} />
+                        <Input
+                          placeholder="https://instagram.com/..."
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -497,7 +622,10 @@ export default function SettingsAdminPage() {
                     <FormItem>
                       <FormLabel>Facebook URL</FormLabel>
                       <FormControl>
-                        <Input placeholder="https://facebook.com/..." {...field} />
+                        <Input
+                          placeholder="https://facebook.com/..."
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -510,7 +638,10 @@ export default function SettingsAdminPage() {
                     <FormItem>
                       <FormLabel>Threads URL</FormLabel>
                       <FormControl>
-                        <Input placeholder="https://threads.net/..." {...field} />
+                        <Input
+                          placeholder="https://threads.net/..."
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -520,8 +651,14 @@ export default function SettingsAdminPage() {
             </Tabs>
 
             <div className="pt-6 border-t flex justify-end">
-              <Button type="submit" disabled={form.formState.isSubmitting} size="lg">
-                {form.formState.isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              <Button
+                type="submit"
+                disabled={form.formState.isSubmitting}
+                size="lg"
+              >
+                {form.formState.isSubmitting && (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                )}
                 Save All Settings
               </Button>
             </div>

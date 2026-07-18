@@ -72,14 +72,18 @@ export default function FacultyAdminPage() {
   const fetchFaculty = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/faculty`, {
-        credentials: "omit",
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/faculty`,
+        {
+          credentials: "omit",
+        },
+      );
       if (res.ok) {
         const data = await res.json();
         setItems(data || []);
       }
-    } catch (err: any) { if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    } catch (err: any) {
+      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
     } finally {
       setLoading(false);
@@ -129,7 +133,8 @@ export default function FacultyAdminPage() {
       if (!res.ok) throw new Error("Failed to save faculty member");
       setIsModalOpen(false);
       fetchFaculty();
-    } catch (err: any) { if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    } catch (err: any) {
+      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
       alert("Error saving. Check if you are logged in as admin.");
     }
@@ -148,11 +153,12 @@ export default function FacultyAdminPage() {
         {
           method: "DELETE",
           credentials: "include",
-        }
+        },
       );
       if (!res.ok) throw new Error("Failed to delete faculty member");
       fetchFaculty();
-    } catch (err: any) { if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    } catch (err: any) {
+      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
       alert("Error deleting");
     } finally {
@@ -164,8 +170,13 @@ export default function FacultyAdminPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-heading font-bold text-slate-900">Faculty</h1>
-        <Button onClick={openCreate} className="bg-school-blue hover:bg-school-blue/90">
+        <h1 className="text-3xl font-heading font-bold text-slate-900">
+          Faculty
+        </h1>
+        <Button
+          onClick={openCreate}
+          className="bg-school-blue hover:bg-school-blue/90"
+        >
           <Plus className="w-4 h-4 mr-2" />
           Add Faculty
         </Button>
@@ -191,7 +202,10 @@ export default function FacultyAdminPage() {
               </TableRow>
             ) : items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center text-slate-500">
+                <TableCell
+                  colSpan={5}
+                  className="h-24 text-center text-slate-500"
+                >
                   No faculty members found.
                 </TableCell>
               </TableRow>
@@ -219,10 +233,32 @@ export default function FacultyAdminPage() {
                   <TableCell>{item.qualification}</TableCell>
                   <TableCell>{item.subjectOrGrade}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(item)}>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pencil text-school-blue"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => openEdit(item)}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="lucide lucide-pencil text-school-blue"
+                      >
+                        <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+                        <path d="m15 5 4 4" />
+                      </svg>
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => confirmDelete(item.id)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => confirmDelete(item.id)}
+                    >
                       <Trash2 className="w-4 h-4 text-red-600" />
                     </Button>
                   </TableCell>
@@ -236,7 +272,9 @@ export default function FacultyAdminPage() {
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
-            <DialogTitle>{editingItem ? "Edit Faculty Member" : "Add Faculty Member"}</DialogTitle>
+            <DialogTitle>
+              {editingItem ? "Edit Faculty Member" : "Add Faculty Member"}
+            </DialogTitle>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -298,11 +336,11 @@ export default function FacultyAdminPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <FileUploadField 
-                        value={field.value || ""} 
-                        onChange={field.onChange} 
-                        label="Faculty Photo (Optional)" 
-                        description="Upload a real photo (no stock photography)" 
+                      <FileUploadField
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        label="Faculty Photo (Optional)"
+                        description="Upload a real photo (no stock photography)"
                       />
                     </FormControl>
                     <FormMessage />
@@ -310,11 +348,17 @@ export default function FacultyAdminPage() {
                 )}
               />
               <div className="flex justify-end space-x-2 pt-4">
-                <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsModalOpen(false)}
+                >
                   Cancel
                 </Button>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  {form.formState.isSubmitting && (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  )}
                   Save
                 </Button>
               </div>
@@ -333,7 +377,10 @@ export default function FacultyAdminPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

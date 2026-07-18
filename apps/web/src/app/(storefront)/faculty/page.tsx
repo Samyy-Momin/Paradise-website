@@ -5,19 +5,24 @@ import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Our Faculty | Paradise English School",
-  description: "Meet the dedicated, experienced, and passionate educators at Paradise English School and Tender Kidz Pre-School.",
+  description:
+    "Meet the dedicated, experienced, and passionate educators at Paradise English School and Tender Kidz Pre-School.",
 };
 
 export const revalidate = 60; // revalidate every 60 seconds
 
 async function getFaculty() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/faculty`, {
-      cache: "no-store",
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/faculty`,
+      {
+        cache: "no-store",
+      },
+    );
     if (!res.ok) return [];
     return res.json();
-  } catch (error: any) { if (error?.digest === 'DYNAMIC_SERVER_USAGE') throw error;
+  } catch (error: any) {
+    if (error?.digest === "DYNAMIC_SERVER_USAGE") throw error;
     console.error("Failed to fetch faculty:", error);
     return [];
   }
@@ -35,7 +40,8 @@ export default async function FacultyPage() {
             Our Educators
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            The heart of our school. Meet the passionate individuals who dedicate their lives to shaping the future of your children.
+            The heart of our school. Meet the passionate individuals who
+            dedicate their lives to shaping the future of your children.
           </p>
         </div>
       </div>
@@ -64,8 +70,12 @@ export default async function FacultyPage() {
                     )}
                   </div>
                   <div className="p-6 text-center">
-                    <h3 className="text-xl font-heading font-bold text-slate-900 mb-1">{member.name}</h3>
-                    <p className="text-school-red font-medium text-sm mb-3">{member.subjectOrGrade}</p>
+                    <h3 className="text-xl font-heading font-bold text-slate-900 mb-1">
+                      {member.name}
+                    </h3>
+                    <p className="text-school-red font-medium text-sm mb-3">
+                      {member.subjectOrGrade}
+                    </p>
                     <p className="text-slate-500 text-sm border-t border-slate-100 pt-3">
                       {member.qualification}
                     </p>

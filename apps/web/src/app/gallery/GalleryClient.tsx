@@ -3,19 +3,33 @@
 import { useState } from "react";
 import Image from "next/image";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
-export function GalleryClient({ items, categories }: { items: any[], categories: any[] }) {
+export function GalleryClient({
+  items,
+  categories,
+}: {
+  items: any[];
+  categories: any[];
+}) {
   const [filter, setFilter] = useState<string>("ALL");
   const [selectedImage, setSelectedImage] = useState<any | null>(null);
 
   const filterOptions = [
     { label: "All", value: "ALL" },
-    ...categories.map(c => ({ label: c.name, value: c.id }))
+    ...categories.map((c) => ({ label: c.name, value: c.id })),
   ];
 
-  const filteredItems = filter === "ALL" ? items : items.filter((item) => item.categoryId === filter);
+  const filteredItems =
+    filter === "ALL"
+      ? items
+      : items.filter((item) => item.categoryId === filter);
 
   return (
     <>
@@ -69,13 +83,16 @@ export function GalleryClient({ items, categories }: { items: any[], categories:
       )}
 
       {/* Lightbox Modal */}
-      <Dialog open={!!selectedImage} onOpenChange={(open) => !open && setSelectedImage(null)}>
+      <Dialog
+        open={!!selectedImage}
+        onOpenChange={(open) => !open && setSelectedImage(null)}
+      >
         <DialogContent className="max-w-[90vw] max-h-[90vh] p-0 overflow-hidden bg-transparent border-none shadow-none flex items-center justify-center">
           <VisuallyHidden>
             <DialogTitle>Image View</DialogTitle>
             <DialogDescription>Viewing full size image</DialogDescription>
           </VisuallyHidden>
-          
+
           {selectedImage && (
             <div className="relative w-full h-[85vh] bg-black/20 rounded-xl overflow-hidden flex items-center justify-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}

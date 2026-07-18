@@ -14,7 +14,19 @@ import { GalleryCategoriesModule } from './gallery-categories/gallery-categories
 import { FaqModule } from './faq/faq.module';
 
 @Module({
-  imports: [PrismaModule, EnquiriesModule, NoticesModule, GalleryModule, TestimonialsModule, FacultyModule, SettingsModule, DashboardModule, UploadsModule, GalleryCategoriesModule, FaqModule],
+  imports: [
+    PrismaModule,
+    EnquiriesModule,
+    NoticesModule,
+    GalleryModule,
+    TestimonialsModule,
+    FacultyModule,
+    SettingsModule,
+    DashboardModule,
+    UploadsModule,
+    GalleryCategoriesModule,
+    FaqModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

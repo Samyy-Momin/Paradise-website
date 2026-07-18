@@ -28,14 +28,18 @@ export default function AdminLoginPage() {
       });
 
       if (signInError) {
-        setError(signInError.message || "Failed to sign in. Please check your credentials.");
+        setError(
+          signInError.message ||
+            "Failed to sign in. Please check your credentials.",
+        );
         return;
       }
 
       // Successful login
       router.push("/admin/dashboard");
       router.refresh();
-    } catch (err: any) { if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    } catch (err: any) {
+      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
       setError("An unexpected error occurred. Please try again.");
     } finally {
@@ -46,7 +50,6 @@ export default function AdminLoginPage() {
   return (
     <div className="flex h-full w-full flex-col items-center justify-center bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
-        
         {/* Header */}
         <div className="flex flex-col items-center">
           <Image
@@ -66,7 +69,6 @@ export default function AdminLoginPage() {
 
         {/* Form */}
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-          
           {error && (
             <div className="rounded-md bg-red-50 p-4">
               <div className="flex">
@@ -118,7 +120,7 @@ export default function AdminLoginPage() {
           </div>
         </form>
       </div>
-      
+
       {/* Decorative background blobs */}
       <div className="fixed top-0 right-0 w-96 h-96 bg-school-blue/5 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2" />
       <div className="fixed bottom-0 left-0 w-96 h-96 bg-school-yellow/5 rounded-full blur-3xl -z-10 -translate-x-1/2 translate-y-1/2" />

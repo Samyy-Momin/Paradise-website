@@ -5,8 +5,19 @@ import Image from "next/image";
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Menu } from "lucide-react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 import {
   NavigationMenu,
@@ -22,7 +33,8 @@ const components: { title: string; href: string; description: string }[] = [
   {
     title: "About Us",
     href: "/about",
-    description: "Learn about the history, vision, and mission of Paradise English School.",
+    description:
+      "Learn about the history, vision, and mission of Paradise English School.",
   },
   {
     title: "Academics",
@@ -32,7 +44,8 @@ const components: { title: string; href: string; description: string }[] = [
   {
     title: "Facilities",
     href: "/facilities",
-    description: "Discover our state-of-the-art campus, library, and sports facilities.",
+    description:
+      "Discover our state-of-the-art campus, library, and sports facilities.",
   },
   {
     title: "Faculty",
@@ -57,7 +70,8 @@ const components: { title: string; href: string; description: string }[] = [
   {
     title: "Tender Kidz",
     href: "/tender-kidz",
-    description: "Our dedicated pre-school branch for early childhood education.",
+    description:
+      "Our dedicated pre-school branch for early childhood education.",
   },
 ];
 
@@ -67,7 +81,6 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b backdrop-blur-md bg-white/80 supports-[backdrop-filter]:bg-white/60 shadow-sm">
       <div className="container flex h-16 md:h-20 items-center justify-between">
-        
         {/* Logo */}
         <div className="flex items-center gap-6 md:gap-10">
           <Link href="/" className="flex items-center space-x-2">
@@ -156,7 +169,7 @@ export function Header() {
           >
             Enquire Now
           </Link>
-          
+
           {/* Mobile Menu Toggle */}
           <div className="lg:hidden flex items-center">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -165,20 +178,37 @@ export function Header() {
                   <Menu className="h-6 w-6" />
                 </button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[85vw] max-w-[400px] overflow-y-auto">
+              <SheetContent
+                side="right"
+                className="w-[85vw] max-w-[400px] overflow-y-auto"
+              >
                 <SheetHeader className="mb-6">
-                  <SheetTitle className="text-left font-heading font-bold text-school-red text-xl">Menu</SheetTitle>
+                  <SheetTitle className="text-left font-heading font-bold text-school-red text-xl">
+                    Menu
+                  </SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col space-y-2">
-                  <Link href="/" onClick={() => setIsOpen(false)} className="block py-4 text-xl font-bold text-slate-800 hover:text-school-red border-b border-slate-100">Home</Link>
+                  <Link
+                    href="/"
+                    onClick={() => setIsOpen(false)}
+                    className="block py-4 text-xl font-bold text-slate-800 hover:text-school-red border-b border-slate-100"
+                  >
+                    Home
+                  </Link>
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="discover" className="border-b-0">
-                      <AccordionTrigger className="text-xl font-bold text-slate-800 hover:text-school-red py-4 hover:no-underline border-b border-slate-100">Discover</AccordionTrigger>
+                      <AccordionTrigger className="text-xl font-bold text-slate-800 hover:text-school-red py-4 hover:no-underline border-b border-slate-100">
+                        Discover
+                      </AccordionTrigger>
                       <AccordionContent className="pt-2 pb-0">
                         <ul className="flex flex-col">
                           {components.map((component) => (
                             <li key={component.title}>
-                              <Link href={component.href} onClick={() => setIsOpen(false)} className="block py-3 pl-4 text-lg text-slate-600 hover:text-school-blue border-l-2 border-slate-100">
+                              <Link
+                                href={component.href}
+                                onClick={() => setIsOpen(false)}
+                                className="block py-3 pl-4 text-lg text-slate-600 hover:text-school-blue border-l-2 border-slate-100"
+                              >
                                 {component.title}
                               </Link>
                             </li>
@@ -187,11 +217,35 @@ export function Header() {
                       </AccordionContent>
                     </AccordionItem>
                   </Accordion>
-                  <Link href="/admissions" onClick={() => setIsOpen(false)} className="block py-4 text-xl font-bold text-slate-800 hover:text-school-red border-b border-slate-100">Admissions</Link>
-                  <Link href="/student-life" onClick={() => setIsOpen(false)} className="block py-4 text-xl font-bold text-slate-800 hover:text-school-red border-b border-slate-100">Student Life</Link>
-                  <Link href="/notices" onClick={() => setIsOpen(false)} className="block py-4 text-xl font-bold text-slate-800 hover:text-school-red border-b border-slate-100">Notices</Link>
-                  <Link href="/contact" onClick={() => setIsOpen(false)} className="block py-4 text-xl font-bold text-slate-800 hover:text-school-red border-b border-slate-100">Contact</Link>
-                  
+                  <Link
+                    href="/admissions"
+                    onClick={() => setIsOpen(false)}
+                    className="block py-4 text-xl font-bold text-slate-800 hover:text-school-red border-b border-slate-100"
+                  >
+                    Admissions
+                  </Link>
+                  <Link
+                    href="/student-life"
+                    onClick={() => setIsOpen(false)}
+                    className="block py-4 text-xl font-bold text-slate-800 hover:text-school-red border-b border-slate-100"
+                  >
+                    Student Life
+                  </Link>
+                  <Link
+                    href="/notices"
+                    onClick={() => setIsOpen(false)}
+                    className="block py-4 text-xl font-bold text-slate-800 hover:text-school-red border-b border-slate-100"
+                  >
+                    Notices
+                  </Link>
+                  <Link
+                    href="/contact"
+                    onClick={() => setIsOpen(false)}
+                    className="block py-4 text-xl font-bold text-slate-800 hover:text-school-red border-b border-slate-100"
+                  >
+                    Contact
+                  </Link>
+
                   <div className="pt-8">
                     <Link
                       href="/admissions"
@@ -222,11 +276,13 @@ const ListItem = React.forwardRef<
           ref={ref}
           className={cn(
             "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 group",
-            className
+            className,
           )}
           {...props}
         >
-          <div className="text-sm font-bold leading-none text-school-blue group-hover:text-school-red transition-colors">{title}</div>
+          <div className="text-sm font-bold leading-none text-school-blue group-hover:text-school-red transition-colors">
+            {title}
+          </div>
           <p className="line-clamp-2 text-sm leading-snug text-slate-500">
             {children}
           </p>

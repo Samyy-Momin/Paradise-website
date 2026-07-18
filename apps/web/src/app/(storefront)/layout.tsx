@@ -10,9 +10,7 @@ export default function StorefrontLayout({
   return (
     <>
       <Header />
-      <main className="flex-1 flex flex-col pb-16 md:pb-0">
-        {children}
-      </main>
+      <main className="flex-1 flex flex-col pb-16 md:pb-0">{children}</main>
       <MobileActionBar />
       <Footer />
     </>

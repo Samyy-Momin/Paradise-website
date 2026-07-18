@@ -10,7 +10,8 @@ export default function AdmissionsPage() {
             Admissions Process
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Take the first step towards a bright future. Follow our simple admissions process to enroll your child at Paradise English School.
+            Take the first step towards a bright future. Follow our simple
+            admissions process to enroll your child at Paradise English School.
           </p>
         </div>
       </div>
@@ -30,8 +31,13 @@ export default function AdmissionsPage() {
                       1
                     </div>
                     <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-slate-200 bg-white shadow-sm">
-                      <div className="font-heading font-bold text-lg mb-1 text-slate-900">Submit Enquiry</div>
-                      <div className="text-slate-600 text-sm">Fill out the form on this page to express your interest and tell us about your child.</div>
+                      <div className="font-heading font-bold text-lg mb-1 text-slate-900">
+                        Submit Enquiry
+                      </div>
+                      <div className="text-slate-600 text-sm">
+                        Fill out the form on this page to express your interest
+                        and tell us about your child.
+                      </div>
                     </div>
                   </div>
                   {/* Step 2 */}
@@ -40,8 +46,13 @@ export default function AdmissionsPage() {
                       2
                     </div>
                     <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-slate-200 bg-white shadow-sm">
-                      <div className="font-heading font-bold text-lg mb-1 text-slate-900">School Visit</div>
-                      <div className="text-slate-600 text-sm">Our admissions team will contact you to schedule a personalized campus tour.</div>
+                      <div className="font-heading font-bold text-lg mb-1 text-slate-900">
+                        School Visit
+                      </div>
+                      <div className="text-slate-600 text-sm">
+                        Our admissions team will contact you to schedule a
+                        personalized campus tour.
+                      </div>
                     </div>
                   </div>
                   {/* Step 3 */}
@@ -50,8 +61,13 @@ export default function AdmissionsPage() {
                       3
                     </div>
                     <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-slate-200 bg-white shadow-sm">
-                      <div className="font-heading font-bold text-lg mb-1 text-slate-900">Confirmation</div>
-                      <div className="text-slate-600 text-sm">Submit the required documents and fee to secure your child's admission.</div>
+                      <div className="font-heading font-bold text-lg mb-1 text-slate-900">
+                        Confirmation
+                      </div>
+                      <div className="text-slate-600 text-sm">
+                        Submit the required documents and fee to secure your
+                        child's admission.
+                      </div>
                     </div>
                   </div>
                 </div>

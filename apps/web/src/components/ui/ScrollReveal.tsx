@@ -1,7 +1,15 @@
 "use client";
 import { motion } from "framer-motion";
 
-export const ScrollReveal = ({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string }) => (
+export const ScrollReveal = ({
+  children,
+  delay = 0,
+  className = "",
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+}) => (
   <motion.div
     className={className}
     initial={{ opacity: 0, y: 20, scale: 0.95 }}

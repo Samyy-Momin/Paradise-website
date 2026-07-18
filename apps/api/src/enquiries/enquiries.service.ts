@@ -1,5 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateEnquiryDto, UpdateEnquiryStatusDto, CreateEnquiryNoteDto } from './dto/create-enquiry.dto';
+import {
+  CreateEnquiryDto,
+  UpdateEnquiryStatusDto,
+  CreateEnquiryNoteDto,
+} from './dto/create-enquiry.dto';
 import { GetEnquiriesQueryDto } from './dto/get-enquiries-query.dto';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -11,8 +15,10 @@ export class EnquiriesService {
     // Note: openapi says string, but prisma might want string for childAge as per our schema (wait, openapi says integer for childAge but schema says String?)
     // In schema.prisma: `childAge   String?`. Wait! openapi.yaml says `childAge: { type: integer, example: 4 }` but in schema it's String?.
     // Let's just stringify it if it's a number.
-    const childAge = createEnquiryDto.childAge ? String(createEnquiryDto.childAge) : undefined;
-    
+    const childAge = createEnquiryDto.childAge
+      ? String(createEnquiryDto.childAge)
+      : undefined;
+
     return this.prisma.client.enquiry.create({
       data: {
         parentName: createEnquiryDto.parentName,
@@ -71,7 +77,11 @@ export class EnquiriesService {
     });
   }
 
-  async addNote(enquiryId: string, authorId: string, noteDto: CreateEnquiryNoteDto) {
+  async addNote(
+    enquiryId: string,
+    authorId: string,
+    noteDto: CreateEnquiryNoteDto,
+  ) {
     return this.prisma.client.enquiryNote.create({
       data: {
         enquiryId,

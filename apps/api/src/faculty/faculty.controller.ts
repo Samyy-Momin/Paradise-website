@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Delete, Param, UseGuards, HttpCode, HttpStatus, Patch } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Delete,
+  Param,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+  Patch,
+} from '@nestjs/common';
 import { FacultyService } from './faculty.service';
 import { CreateFacultyDto } from './dto/create-faculty.dto';
 import { BetterAuthGuard } from '../common/guards/better-auth.guard';

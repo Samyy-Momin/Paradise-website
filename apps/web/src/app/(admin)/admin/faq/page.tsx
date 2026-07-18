@@ -71,14 +71,18 @@ export default function FaqAdminPage() {
   const fetchFaqs = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/faq`, {
-        credentials: "omit",
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/faq`,
+        {
+          credentials: "omit",
+        },
+      );
       if (res.ok) {
         const data = await res.json();
         setItems(data || []);
       }
-    } catch (err: any) { if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    } catch (err: any) {
+      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
     } finally {
       setLoading(false);
@@ -130,7 +134,8 @@ export default function FaqAdminPage() {
       }
       setIsModalOpen(false);
       fetchFaqs();
-    } catch (err: any) { if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    } catch (err: any) {
+      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
       alert(err.message || "Error saving FAQ");
     }
@@ -149,14 +154,15 @@ export default function FaqAdminPage() {
         {
           method: "DELETE",
           credentials: "include",
-        }
+        },
       );
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.message || "Failed to delete FAQ");
       }
       fetchFaqs();
-    } catch (err: any) { if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    } catch (err: any) {
+      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
       alert(err.message || "Error deleting FAQ");
     } finally {
@@ -169,7 +175,10 @@ export default function FaqAdminPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-heading font-bold text-slate-900">FAQ</h1>
-        <Button onClick={openCreate} className="bg-school-blue hover:bg-school-blue/90">
+        <Button
+          onClick={openCreate}
+          className="bg-school-blue hover:bg-school-blue/90"
+        >
           <Plus className="w-4 h-4 mr-2" />
           Add Question
         </Button>
@@ -193,20 +202,33 @@ export default function FaqAdminPage() {
               </TableRow>
             ) : items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={3} className="h-24 text-center text-slate-500">
+                <TableCell
+                  colSpan={3}
+                  className="h-24 text-center text-slate-500"
+                >
                   No FAQs found.
                 </TableCell>
               </TableRow>
             ) : (
               items.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell className="font-medium max-w-md truncate">{item.question}</TableCell>
+                  <TableCell className="font-medium max-w-md truncate">
+                    {item.question}
+                  </TableCell>
                   <TableCell>{item.order}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(item)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => openEdit(item)}
+                    >
                       <Pencil className="w-4 h-4 text-slate-600" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => confirmDelete(item.id)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => confirmDelete(item.id)}
+                    >
                       <Trash2 className="w-4 h-4 text-red-600" />
                     </Button>
                   </TableCell>
@@ -223,7 +245,10 @@ export default function FaqAdminPage() {
             <DialogTitle>{editingId ? "Edit FAQ" : "Add FAQ"}</DialogTitle>
           </DialogHeader>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
+            <form
+              onSubmit={form.handleSubmit(onSubmit as any)}
+              className="space-y-4"
+            >
               <FormField
                 control={form.control}
                 name="question"
@@ -244,10 +269,10 @@ export default function FaqAdminPage() {
                   <FormItem>
                     <FormLabel>Answer</FormLabel>
                     <FormControl>
-                      <Textarea 
-                        placeholder="Detailed answer here..." 
+                      <Textarea
+                        placeholder="Detailed answer here..."
                         className="min-h-[100px]"
-                        {...field} 
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -268,11 +293,17 @@ export default function FaqAdminPage() {
                 )}
               />
               <div className="flex justify-end space-x-2 pt-4">
-                <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsModalOpen(false)}
+                >
                   Cancel
                 </Button>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  {form.formState.isSubmitting && (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  )}
                   Save
                 </Button>
               </div>
@@ -291,7 +322,10 @@ export default function FaqAdminPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

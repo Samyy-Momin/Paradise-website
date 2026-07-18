@@ -8,7 +8,9 @@ export class NoticesService {
   constructor(private prisma: PrismaService) {}
 
   async create(createNoticeDto: CreateNoticeDto) {
-    const slug = createNoticeDto.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const slug = createNoticeDto.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-');
     return this.prisma.client.notice.create({
       data: {
         ...createNoticeDto,
@@ -57,13 +59,15 @@ export class NoticesService {
     if (updateNoticeDto.title) {
       slug = updateNoticeDto.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     }
-    
+
     return this.prisma.client.notice.update({
       where: { id },
       data: {
         ...updateNoticeDto,
         ...(slug && { slug }),
-        ...(updateNoticeDto.publishAt && { publishAt: new Date(updateNoticeDto.publishAt) }),
+        ...(updateNoticeDto.publishAt && {
+          publishAt: new Date(updateNoticeDto.publishAt),
+        }),
       },
     });
   }

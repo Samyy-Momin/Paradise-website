@@ -5,7 +5,17 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export function ImageSlideshow({ images, className, hideDots, priority = false }: { images: { url: string; altText?: string }[], className?: string, hideDots?: boolean, priority?: boolean }) {
+export function ImageSlideshow({
+  images,
+  className,
+  hideDots,
+  priority = false,
+}: {
+  images: { url: string; altText?: string }[];
+  className?: string;
+  hideDots?: boolean;
+  priority?: boolean;
+}) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -33,7 +43,9 @@ export function ImageSlideshow({ images, className, hideDots, priority = false }
   };
 
   return (
-    <div className={`relative w-full bg-slate-200 overflow-hidden group ${className || "aspect-video rounded-3xl"}`}>
+    <div
+      className={`relative w-full bg-slate-200 overflow-hidden group ${className || "aspect-video rounded-3xl"}`}
+    >
       {images.map((image, idx) => (
         <div
           key={idx}
@@ -79,7 +91,9 @@ export function ImageSlideshow({ images, className, hideDots, priority = false }
                 <button
                   key={idx}
                   className={`w-2.5 h-2.5 rounded-full transition-all ${
-                    idx === currentIndex ? "bg-white scale-125 shadow-sm" : "bg-white/50 hover:bg-white/80"
+                    idx === currentIndex
+                      ? "bg-white scale-125 shadow-sm"
+                      : "bg-white/50 hover:bg-white/80"
                   }`}
                   onClick={() => setCurrentIndex(idx)}
                 />

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 
@@ -51,7 +55,9 @@ export class GalleryCategoriesService {
       where: { categoryId: id },
     });
     if (count > 0) {
-      throw new BadRequestException('Cannot delete category with associated images');
+      throw new BadRequestException(
+        'Cannot delete category with associated images',
+      );
     }
 
     try {

@@ -7,15 +7,20 @@ import { format } from "date-fns";
 
 export const metadata: Metadata = {
   title: "Student Life | Paradise English School",
-  description: "Discover a day in the life of our students. Explore our extracurricular activities, events, and focus on student well-being.",
+  description:
+    "Discover a day in the life of our students. Explore our extracurricular activities, events, and focus on student well-being.",
 };
 
 async function getSettings() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/settings`, { cache: "no-store" });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/settings`,
+      { cache: "no-store" },
+    );
     if (!res.ok) return null;
     return res.json();
-  } catch (error: any) { if (error?.digest === 'DYNAMIC_SERVER_USAGE') throw error;
+  } catch (error: any) {
+    if (error?.digest === "DYNAMIC_SERVER_USAGE") throw error;
     return null;
   }
 }
@@ -23,24 +28,35 @@ async function getSettings() {
 async function getGalleryData() {
   try {
     const [itemsRes, catsRes] = await Promise.all([
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery`, { cache: "no-store" }),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery-categories`, { cache: "no-store" })
+      fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery`,
+        { cache: "no-store" },
+      ),
+      fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery-categories`,
+        { cache: "no-store" },
+      ),
     ]);
     const items = itemsRes.ok ? await itemsRes.json() : [];
     const categories = catsRes.ok ? await catsRes.json() : [];
     return { items, categories };
-  } catch (error: any) { if (error?.digest === 'DYNAMIC_SERVER_USAGE') throw error;
+  } catch (error: any) {
+    if (error?.digest === "DYNAMIC_SERVER_USAGE") throw error;
     return { items: [], categories: [] };
   }
 }
 
 async function getNotices() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/notices`, { cache: "no-store" });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/notices`,
+      { cache: "no-store" },
+    );
     if (!res.ok) return [];
     const data = await res.json();
     return data.data || [];
-  } catch (error: any) { if (error?.digest === 'DYNAMIC_SERVER_USAGE') throw error;
+  } catch (error: any) {
+    if (error?.digest === "DYNAMIC_SERVER_USAGE") throw error;
     return [];
   }
 }
@@ -51,15 +67,33 @@ export default async function StudentLifePage() {
   const notices = await getNotices();
 
   // Get categories for activities and events
-  const activitiesCat = categories.find((c: any) => c.slug.toLowerCase().includes("activities") || c.name.toLowerCase().includes("activities"));
-  const eventsCat = categories.find((c: any) => c.slug.toLowerCase().includes("events") || c.name.toLowerCase().includes("events"));
+  const activitiesCat = categories.find(
+    (c: any) =>
+      c.slug.toLowerCase().includes("activities") ||
+      c.name.toLowerCase().includes("activities"),
+  );
+  const eventsCat = categories.find(
+    (c: any) =>
+      c.slug.toLowerCase().includes("events") ||
+      c.name.toLowerCase().includes("events"),
+  );
 
-  const activityImages = activitiesCat ? galleryItems.filter((i: any) => i.categoryId === activitiesCat.id) : [];
-  const eventImages = eventsCat ? galleryItems.filter((i: any) => i.categoryId === eventsCat.id) : [];
-  
+  const activityImages = activitiesCat
+    ? galleryItems.filter((i: any) => i.categoryId === activitiesCat.id)
+    : [];
+  const eventImages = eventsCat
+    ? galleryItems.filter((i: any) => i.categoryId === eventsCat.id)
+    : [];
+
   // Also get some general campus images for the intro if needed
-  const campusCat = categories.find((c: any) => c.slug.toLowerCase().includes("campus") || c.name.toLowerCase().includes("campus"));
-  const campusImages = campusCat ? galleryItems.filter((i: any) => i.categoryId === campusCat.id) : [];
+  const campusCat = categories.find(
+    (c: any) =>
+      c.slug.toLowerCase().includes("campus") ||
+      c.name.toLowerCase().includes("campus"),
+  );
+  const campusImages = campusCat
+    ? galleryItems.filter((i: any) => i.categoryId === campusCat.id)
+    : [];
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
@@ -70,31 +104,42 @@ export default async function StudentLifePage() {
             Student Life
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            A vibrant, safe, and engaging environment where every child discovers their passions.
+            A vibrant, safe, and engaging environment where every child
+            discovers their passions.
           </p>
         </div>
       </div>
 
       <div className="container py-16 space-y-24">
-        
         {/* Day in the Life Narrative */}
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <ScrollReveal>
             <div className="space-y-6">
               <h2 className="text-3xl font-heading font-bold text-slate-900 flex items-center gap-3">
-                <Clock className="text-school-blue w-8 h-8" />
-                A Day in the Life
+                <Clock className="text-school-blue w-8 h-8" />A Day in the Life
               </h2>
               <p className="text-slate-600 leading-relaxed text-lg">
-                From the moment students walk through our gates, they are greeted by a nurturing atmosphere designed to inspire curiosity. A typical day balances rigorous academics with creative play, collaborative projects, and physical activities.
+                From the moment students walk through our gates, they are
+                greeted by a nurturing atmosphere designed to inspire curiosity.
+                A typical day balances rigorous academics with creative play,
+                collaborative projects, and physical activities.
               </p>
               <p className="text-slate-600 leading-relaxed text-lg">
-                Whether it's engaging in interactive classroom discussions, exploring the library, or participating in hands-on science experiments, every moment at Paradise English School is an opportunity to grow.
+                Whether it's engaging in interactive classroom discussions,
+                exploring the library, or participating in hands-on science
+                experiments, every moment at Paradise English School is an
+                opportunity to grow.
               </p>
             </div>
           </ScrollReveal>
           <ScrollReveal delay={0.2}>
-            <ImageSlideshow images={campusImages.length > 0 ? campusImages : galleryItems.slice(0, 5)} />
+            <ImageSlideshow
+              images={
+                campusImages.length > 0
+                  ? campusImages
+                  : galleryItems.slice(0, 5)
+              }
+            />
           </ScrollReveal>
         </section>
 
@@ -106,18 +151,23 @@ export default async function StudentLifePage() {
                 Extracurricular Activities
               </h2>
               <p className="text-slate-600 text-lg">
-                Education goes beyond textbooks. Our diverse extracurricular programs help students develop new skills, build confidence, and discover lifelong interests.
+                Education goes beyond textbooks. Our diverse extracurricular
+                programs help students develop new skills, build confidence, and
+                discover lifelong interests.
               </p>
             </div>
           </ScrollReveal>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mt-12">
-            <ScrollReveal delay={0.1} className="order-2 lg:order-1 h-full min-h-[400px] relative">
+            <ScrollReveal
+              delay={0.1}
+              className="order-2 lg:order-1 h-full min-h-[400px] relative"
+            >
               {settings?.extracurricularImage ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
-                <img 
-                  src={settings.extracurricularImage} 
-                  alt="Extracurricular Activities" 
+                <img
+                  src={settings.extracurricularImage}
+                  alt="Extracurricular Activities"
                   className="w-full h-full object-cover rounded-3xl shadow-sm border border-slate-200 absolute inset-0"
                 />
               ) : (
@@ -126,24 +176,45 @@ export default async function StudentLifePage() {
             </ScrollReveal>
             <ScrollReveal delay={0.2} className="order-1 lg:order-2 space-y-6">
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex gap-4">
-                <div className="bg-school-yellow/20 p-3 rounded-full h-fit">🎨</div>
+                <div className="bg-school-yellow/20 p-3 rounded-full h-fit">
+                  🎨
+                </div>
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">Arts & Crafts</h3>
-                  <p className="text-slate-600">Encouraging creativity and self-expression through various artistic mediums and collaborative projects.</p>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">
+                    Arts & Crafts
+                  </h3>
+                  <p className="text-slate-600">
+                    Encouraging creativity and self-expression through various
+                    artistic mediums and collaborative projects.
+                  </p>
                 </div>
               </div>
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex gap-4">
-                <div className="bg-school-red/10 p-3 rounded-full h-fit">⚽</div>
+                <div className="bg-school-red/10 p-3 rounded-full h-fit">
+                  ⚽
+                </div>
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">Sports & Physical Ed</h3>
-                  <p className="text-slate-600">Building teamwork, discipline, and physical fitness through structured sports programs and free play.</p>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">
+                    Sports & Physical Ed
+                  </h3>
+                  <p className="text-slate-600">
+                    Building teamwork, discipline, and physical fitness through
+                    structured sports programs and free play.
+                  </p>
                 </div>
               </div>
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex gap-4">
-                <div className="bg-school-blue/10 p-3 rounded-full h-fit">🎵</div>
+                <div className="bg-school-blue/10 p-3 rounded-full h-fit">
+                  🎵
+                </div>
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">Music & Performance</h3>
-                  <p className="text-slate-600">Fostering confidence and rhythm through musical activities, choir, and annual stage performances.</p>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">
+                    Music & Performance
+                  </h3>
+                  <p className="text-slate-600">
+                    Fostering confidence and rhythm through musical activities,
+                    choir, and annual stage performances.
+                  </p>
                 </div>
               </div>
             </ScrollReveal>
@@ -159,10 +230,14 @@ export default async function StudentLifePage() {
                   Events & Highlights
                 </h2>
                 <p className="text-slate-600 text-lg">
-                  We regularly host events that bring our community together and celebrate student achievements.
+                  We regularly host events that bring our community together and
+                  celebrate student achievements.
                 </p>
               </div>
-              <Link href="/notices" className="text-school-blue font-medium hover:underline whitespace-nowrap">
+              <Link
+                href="/notices"
+                className="text-school-blue font-medium hover:underline whitespace-nowrap"
+              >
                 View All Notices →
               </Link>
             </div>
@@ -173,9 +248,9 @@ export default async function StudentLifePage() {
             <ScrollReveal className="lg:col-span-2 h-full min-h-[400px] relative">
               {settings?.eventsImage ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
-                <img 
-                  src={settings.eventsImage} 
-                  alt="Events and Highlights" 
+                <img
+                  src={settings.eventsImage}
+                  alt="Events and Highlights"
                   className="w-full h-full object-cover rounded-3xl shadow-sm border border-slate-200 absolute inset-0"
                 />
               ) : (
@@ -185,12 +260,21 @@ export default async function StudentLifePage() {
 
             {/* Recent Notices */}
             <ScrollReveal delay={0.2} className="flex flex-col gap-4">
-              <h3 className="font-bold text-slate-900 uppercase tracking-wider text-sm mb-2">Recent Announcements</h3>
+              <h3 className="font-bold text-slate-900 uppercase tracking-wider text-sm mb-2">
+                Recent Announcements
+              </h3>
               {notices.slice(0, 3).map((notice: any) => (
-                <Link key={notice.id} href={`/notices/${notice.slug}`} className="block group">
+                <Link
+                  key={notice.id}
+                  href={`/notices/${notice.slug}`}
+                  className="block group"
+                >
                   <div className="p-5 rounded-xl border border-slate-100 bg-slate-50 hover:bg-school-blue/5 hover:border-school-blue/20 transition-all">
                     <p className="text-xs text-school-red font-medium mb-2">
-                      {format(new Date(notice.publishAt || notice.createdAt), "MMMM d, yyyy")}
+                      {format(
+                        new Date(notice.publishAt || notice.createdAt),
+                        "MMMM d, yyyy",
+                      )}
                     </p>
                     <h4 className="font-bold text-slate-900 group-hover:text-school-blue line-clamp-2">
                       {notice.title}
@@ -199,7 +283,9 @@ export default async function StudentLifePage() {
                 </Link>
               ))}
               {notices.length === 0 && (
-                <div className="text-slate-500 italic p-4 bg-slate-50 rounded-xl">No recent events found.</div>
+                <div className="text-slate-500 italic p-4 bg-slate-50 rounded-xl">
+                  No recent events found.
+                </div>
               )}
             </ScrollReveal>
           </div>
@@ -218,19 +304,28 @@ export default async function StudentLifePage() {
                   Safety & Well-being
                 </h2>
                 <p className="text-blue-50 leading-relaxed mb-6">
-                  The safety, security, and emotional well-being of our students is our absolute top priority. Our campus is fully secured with monitored access, and our staff are trained to provide a supportive, inclusive environment.
+                  The safety, security, and emotional well-being of our students
+                  is our absolute top priority. Our campus is fully secured with
+                  monitored access, and our staff are trained to provide a
+                  supportive, inclusive environment.
                 </p>
                 <ul className="space-y-3 text-blue-100">
                   <li className="flex items-center gap-3">
-                    <span className="bg-white/20 p-1 rounded-full"><Users className="w-4 h-4" /></span>
+                    <span className="bg-white/20 p-1 rounded-full">
+                      <Users className="w-4 h-4" />
+                    </span>
                     Dedicated counseling and pastoral care
                   </li>
                   <li className="flex items-center gap-3">
-                    <span className="bg-white/20 p-1 rounded-full"><ShieldCheck className="w-4 h-4" /></span>
+                    <span className="bg-white/20 p-1 rounded-full">
+                      <ShieldCheck className="w-4 h-4" />
+                    </span>
                     Secure campus with restricted entry
                   </li>
                   <li className="flex items-center gap-3">
-                    <span className="bg-white/20 p-1 rounded-full"><Heart className="w-4 h-4" /></span>
+                    <span className="bg-white/20 p-1 rounded-full">
+                      <Heart className="w-4 h-4" />
+                    </span>
                     Strict anti-bullying policies
                   </li>
                 </ul>
@@ -244,12 +339,14 @@ export default async function StudentLifePage() {
                 <Clock className="w-32 h-32" />
               </div>
               <div className="relative z-10">
-                <h2 className="text-2xl font-heading font-bold mb-6">Hours of Operation</h2>
+                <h2 className="text-2xl font-heading font-bold mb-6">
+                  Hours of Operation
+                </h2>
                 <div className="space-y-4">
                   <p className="text-slate-300 leading-relaxed">
                     The establishment is functional during the following hours:
                   </p>
-                  
+
                   {settings?.hours ? (
                     <div className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700">
                       <p className="whitespace-pre-line text-lg font-medium text-white font-mono">
@@ -259,18 +356,27 @@ export default async function StudentLifePage() {
                   ) : (
                     <div className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 space-y-2">
                       <div className="flex justify-between border-b border-slate-700 pb-2">
-                        <span className="text-slate-400">Monday - Saturday</span>
-                        <span className="font-medium text-white">10:00 Am - 5:00 Pm</span>
+                        <span className="text-slate-400">
+                          Monday - Saturday
+                        </span>
+                        <span className="font-medium text-white">
+                          10:00 Am - 5:00 Pm
+                        </span>
                       </div>
                       <div className="flex justify-between pt-2">
                         <span className="text-slate-400">Sunday</span>
-                        <span className="font-medium text-school-red">Closed</span>
+                        <span className="font-medium text-school-red">
+                          Closed
+                        </span>
                       </div>
                     </div>
                   )}
-                  
+
                   <div className="pt-4 flex gap-4">
-                    <Link href="/contact" className="inline-block bg-school-yellow text-slate-900 px-6 py-2 rounded-full font-bold hover:bg-school-yellow/90 transition-colors">
+                    <Link
+                      href="/contact"
+                      className="inline-block bg-school-yellow text-slate-900 px-6 py-2 rounded-full font-bold hover:bg-school-yellow/90 transition-colors"
+                    >
                       Contact Us
                     </Link>
                   </div>
@@ -286,15 +392,21 @@ export default async function StudentLifePage() {
             <h2 className="text-3xl font-heading font-bold text-slate-900">
               Campus Gallery
             </h2>
-            <Link href="/gallery" className="text-school-blue font-medium hover:underline">
+            <Link
+              href="/gallery"
+              className="text-school-blue font-medium hover:underline"
+            >
               View Full Gallery →
             </Link>
           </div>
-          
+
           {galleryItems.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {galleryItems.slice(0, 4).map((item: any) => (
-                <div key={item.id} className="relative aspect-square rounded-2xl overflow-hidden group">
+                <div
+                  key={item.id}
+                  className="relative aspect-square rounded-2xl overflow-hidden group"
+                >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={item.url}
@@ -302,7 +414,9 @@ export default async function StudentLifePage() {
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                    <p className="text-white font-medium text-sm truncate">{item.title}</p>
+                    <p className="text-white font-medium text-sm truncate">
+                      {item.title}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -313,7 +427,6 @@ export default async function StudentLifePage() {
             </div>
           )}
         </section>
-
       </div>
     </div>
   );

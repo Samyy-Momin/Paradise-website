@@ -19,8 +19,11 @@ export class UploadsService {
     }
 
     const allowedMimeTypes = [
-      'image/jpeg', 'image/png', 'image/webp',
-      'video/mp4', 'video/webm',
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+      'video/mp4',
+      'video/webm',
       'application/pdf',
       'application/msword', // doc
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // docx
@@ -45,12 +48,19 @@ export class UploadsService {
           resource_type: 'auto',
           ...(isImage && {
             format: 'webp',
-            transformation: [{ width: 1200, crop: 'limit' }, { quality: 'auto' }],
+            transformation: [
+              { width: 1200, crop: 'limit' },
+              { quality: 'auto' },
+            ],
           }),
         },
         (error, result) => {
           if (error || !result) {
-            reject(new BadRequestException('Upload failed: ' + (error?.message || 'Unknown error')));
+            reject(
+              new BadRequestException(
+                'Upload failed: ' + (error?.message || 'Unknown error'),
+              ),
+            );
           } else {
             resolve({
               url: result.secure_url,

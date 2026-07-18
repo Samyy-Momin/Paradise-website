@@ -3,17 +3,22 @@ import { FAQSection } from "@/components/blocks/FAQSection";
 
 export const metadata: Metadata = {
   title: "Frequently Asked Questions | Paradise English School",
-  description: "Find answers to common questions about admissions, campus life, and academics at Paradise English School.",
+  description:
+    "Find answers to common questions about admissions, campus life, and academics at Paradise English School.",
 };
 
 async function getFaqs() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/faq`, {
-      cache: "no-store",
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/faq`,
+      {
+        cache: "no-store",
+      },
+    );
     if (!res.ok) return [];
     return res.json();
-  } catch (error: any) { if (error?.digest === 'DYNAMIC_SERVER_USAGE') throw error;
+  } catch (error: any) {
+    if (error?.digest === "DYNAMIC_SERVER_USAGE") throw error;
     console.error("Failed to fetch FAQs:", error);
     return [];
   }
@@ -29,7 +34,9 @@ export default async function FaqPage() {
           <FAQSection items={items} />
         ) : (
           <div className="text-center py-24 text-slate-500">
-            <h1 className="text-3xl font-heading font-bold text-slate-900 mb-4">FAQ</h1>
+            <h1 className="text-3xl font-heading font-bold text-slate-900 mb-4">
+              FAQ
+            </h1>
             <p>Check back later for common questions and answers.</p>
           </div>
         )}

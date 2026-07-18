@@ -19,7 +19,10 @@ export async function POST(req: NextRequest) {
     const file = formData.get("file") as File | null;
 
     if (!file) {
-      return NextResponse.json({ message: "No file provided" }, { status: 400 });
+      return NextResponse.json(
+        { message: "No file provided" },
+        { status: 400 },
+      );
     }
 
     // Convert file to buffer
@@ -33,7 +36,7 @@ export async function POST(req: NextRequest) {
         (error, result) => {
           if (error) return reject(error);
           resolve(result);
-        }
+        },
       );
       uploadStream.end(buffer);
     });
@@ -42,11 +45,12 @@ export async function POST(req: NextRequest) {
       message: "Success",
       url: (uploadResult as any).secure_url,
     });
-  } catch (error: any) { if (error?.digest === 'DYNAMIC_SERVER_USAGE') throw error;
+  } catch (error: any) {
+    if (error?.digest === "DYNAMIC_SERVER_USAGE") throw error;
     console.error("Upload error:", error);
     return NextResponse.json(
       { message: error.message || "Failed to upload to Cloudinary" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

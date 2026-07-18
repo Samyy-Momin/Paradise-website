@@ -1,6 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
-import { ExpressAdapter, NestExpressApplication } from '@nestjs/platform-express';
+import {
+  ExpressAdapter,
+  NestExpressApplication,
+} from '@nestjs/platform-express';
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
@@ -12,12 +15,14 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const server = express();
-  
+
   // Apply CORS to the raw Express server for Better Auth
-  server.use(cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-    credentials: true,
-  }));
+  server.use(
+    cors({
+      origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+      credentials: true,
+    }),
+  );
 
   // Mount Better Auth handler BEFORE Nest's body parser
   server.use('/api/auth', toNodeHandler(auth));

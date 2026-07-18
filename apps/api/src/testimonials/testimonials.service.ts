@@ -19,7 +19,7 @@ export class TestimonialsService {
   findAll(query: GetTestimonialsQueryDto, isAdmin: boolean) {
     const { includeUnapproved } = query;
     return this.prisma.client.testimonial.findMany({
-      where: (includeUnapproved && isAdmin) ? undefined : { approved: true },
+      where: includeUnapproved && isAdmin ? undefined : { approved: true },
       orderBy: { createdAt: 'desc' },
     });
   }

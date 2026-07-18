@@ -77,14 +77,18 @@ export default function NoticesAdminPage() {
   const fetchNotices = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/notices?limit=100`, {
-        credentials: "omit", // public endpoint
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/notices?limit=100`,
+        {
+          credentials: "omit", // public endpoint
+        },
+      );
       if (res.ok) {
         const json = await res.json();
         setNotices(json.data || []);
       }
-    } catch (err: any) { if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    } catch (err: any) {
+      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
     } finally {
       setLoading(false);
@@ -112,7 +116,9 @@ export default function NoticesAdminPage() {
     form.reset({
       title: notice.title,
       body: notice.body,
-      publishAt: notice.publishAt ? new Date(notice.publishAt).toISOString().split("T")[0] : "",
+      publishAt: notice.publishAt
+        ? new Date(notice.publishAt).toISOString().split("T")[0]
+        : "",
       imageUrl: notice.imageUrl || "",
       attachmentUrl: notice.attachmentUrl || "",
     });
@@ -141,7 +147,8 @@ export default function NoticesAdminPage() {
       if (!res.ok) throw new Error("Failed to save notice");
       setIsModalOpen(false);
       fetchNotices();
-    } catch (err: any) { if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    } catch (err: any) {
+      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
       alert("Error saving notice. Check if you are logged in as admin.");
     }
@@ -160,11 +167,12 @@ export default function NoticesAdminPage() {
         {
           method: "DELETE",
           credentials: "include",
-        }
+        },
       );
       if (!res.ok) throw new Error("Failed to delete notice");
       fetchNotices();
-    } catch (err: any) { if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    } catch (err: any) {
+      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
       alert("Error deleting notice");
     } finally {
@@ -176,8 +184,13 @@ export default function NoticesAdminPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-heading font-bold text-slate-900">Notices</h1>
-        <Button onClick={openCreate} className="bg-school-blue hover:bg-school-blue/90">
+        <h1 className="text-3xl font-heading font-bold text-slate-900">
+          Notices
+        </h1>
+        <Button
+          onClick={openCreate}
+          className="bg-school-blue hover:bg-school-blue/90"
+        >
           <Plus className="w-4 h-4 mr-2" />
           Add Notice
         </Button>
@@ -201,7 +214,10 @@ export default function NoticesAdminPage() {
               </TableRow>
             ) : notices.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={3} className="h-24 text-center text-slate-500">
+                <TableCell
+                  colSpan={3}
+                  className="h-24 text-center text-slate-500"
+                >
                   No notices found.
                 </TableCell>
               </TableRow>
@@ -210,13 +226,23 @@ export default function NoticesAdminPage() {
                 <TableRow key={notice.id}>
                   <TableCell className="font-medium">{notice.title}</TableCell>
                   <TableCell>
-                    {notice.publishAt ? format(new Date(notice.publishAt), "PP") : "N/A"}
+                    {notice.publishAt
+                      ? format(new Date(notice.publishAt), "PP")
+                      : "N/A"}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(notice)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => openEdit(notice)}
+                    >
                       <Pencil className="w-4 h-4 text-slate-600" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => confirmDelete(notice.id)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => confirmDelete(notice.id)}
+                    >
                       <Trash2 className="w-4 h-4 text-red-600" />
                     </Button>
                   </TableCell>
@@ -231,7 +257,9 @@ export default function NoticesAdminPage() {
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>{editingId ? "Edit Notice" : "Add Notice"}</DialogTitle>
+            <DialogTitle>
+              {editingId ? "Edit Notice" : "Add Notice"}
+            </DialogTitle>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -255,7 +283,11 @@ export default function NoticesAdminPage() {
                   <FormItem>
                     <FormLabel>Content</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Notice details..." rows={4} {...field} />
+                      <Textarea
+                        placeholder="Notice details..."
+                        rows={4}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -280,11 +312,11 @@ export default function NoticesAdminPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <FileUploadField 
-                        value={field.value || ""} 
-                        onChange={field.onChange} 
-                        label="Notice Image (Optional)" 
-                        description="Upload an image to accompany this notice" 
+                      <FileUploadField
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        label="Notice Image (Optional)"
+                        description="Upload an image to accompany this notice"
                       />
                     </FormControl>
                     <FormMessage />
@@ -297,10 +329,10 @@ export default function NoticesAdminPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <FileUploadField 
-                        value={field.value || ""} 
-                        onChange={field.onChange} 
-                        label="Document Attachment (Optional)" 
+                      <FileUploadField
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        label="Document Attachment (Optional)"
                         description="Upload a PDF, Word document, or extra image"
                       />
                     </FormControl>
@@ -309,11 +341,17 @@ export default function NoticesAdminPage() {
                 )}
               />
               <div className="flex justify-end space-x-2 pt-4">
-                <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsModalOpen(false)}
+                >
                   Cancel
                 </Button>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  {form.formState.isSubmitting && (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  )}
                   Save
                 </Button>
               </div>
@@ -328,12 +366,16 @@ export default function NoticesAdminPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the notice.
+              This action cannot be undone. This will permanently delete the
+              notice.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

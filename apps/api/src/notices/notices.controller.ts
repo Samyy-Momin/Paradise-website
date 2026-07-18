@@ -1,9 +1,26 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { NoticesService } from './notices.service';
 import { CreateNoticeDto, UpdateNoticeDto } from './dto/create-notice.dto';
 import { GetNoticesQueryDto } from './dto/get-notices-query.dto';
 import { BetterAuthGuard } from '../common/guards/better-auth.guard';
-import { ApiTags, ApiOperation, ApiResponse, ApiCookieAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiCookieAuth,
+} from '@nestjs/swagger';
 
 @ApiTags('Notices')
 @Controller('notices')

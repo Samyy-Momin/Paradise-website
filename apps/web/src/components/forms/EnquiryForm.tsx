@@ -23,7 +23,9 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const formSchema = z.object({
   parentName: z.string().min(2, "Name must be at least 2 characters."),
-  phone: z.string().regex(/^\+91 \d{10}$/, "Please enter a valid 10-digit phone number."),
+  phone: z
+    .string()
+    .regex(/^\+91 \d{10}$/, "Please enter a valid 10-digit phone number."),
   childAge: z.string().optional(),
   branch: z.enum(["PARADISE_ENGLISH_SCHOOL", "TENDER_KIDZ_PRE_SCHOOL"], {
     message: "Please select a branch.",
@@ -71,7 +73,8 @@ export function EnquiryForm() {
     setSuccess(false);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+      const apiUrl =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
       const res = await fetch(`${apiUrl}/enquiries`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -87,7 +90,8 @@ export function EnquiryForm() {
 
       setSuccess(true);
       form.reset();
-    } catch (err: any) { if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    } catch (err: any) {
+      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       setError(err.message || "An unexpected error occurred.");
     } finally {
       setIsSubmitting(false);
@@ -99,7 +103,8 @@ export function EnquiryForm() {
       <Alert className="border-school-blue bg-school-blue/10">
         <AlertTitle className="text-school-blue font-bold">Success!</AlertTitle>
         <AlertDescription className="text-slate-700">
-          Thank you for your enquiry. Our team will contact you shortly to guide you through the next steps.
+          Thank you for your enquiry. Our team will contact you shortly to guide
+          you through the next steps.
         </AlertDescription>
       </Alert>
     );
@@ -129,7 +134,10 @@ export function EnquiryForm() {
                 >
                   <FormItem>
                     <FormControl>
-                      <RadioGroupItem value="TENDER_KIDZ_PRE_SCHOOL" className="peer sr-only" />
+                      <RadioGroupItem
+                        value="TENDER_KIDZ_PRE_SCHOOL"
+                        className="peer sr-only"
+                      />
                     </FormControl>
                     <FormLabel className="flex flex-col items-center justify-between rounded-md border-2 border-slate-200 bg-white p-4 font-bold hover:bg-slate-50 hover:text-slate-900 peer-data-[state=checked]:border-school-blue peer-data-[state=checked]:bg-school-blue/5 cursor-pointer">
                       🧸 Tender Kidz (Pre-Primary)
@@ -137,7 +145,10 @@ export function EnquiryForm() {
                   </FormItem>
                   <FormItem>
                     <FormControl>
-                      <RadioGroupItem value="PARADISE_ENGLISH_SCHOOL" className="peer sr-only" />
+                      <RadioGroupItem
+                        value="PARADISE_ENGLISH_SCHOOL"
+                        className="peer sr-only"
+                      />
                     </FormControl>
                     <FormLabel className="flex flex-col items-center justify-between rounded-md border-2 border-slate-200 bg-white p-4 font-bold hover:bg-slate-50 hover:text-slate-900 peer-data-[state=checked]:border-school-blue peer-data-[state=checked]:bg-school-blue/5 cursor-pointer">
                       📚 Paradise English (Primary)
@@ -158,7 +169,11 @@ export function EnquiryForm() {
               <FormItem>
                 <FormLabel>Parent/Guardian Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g. John Doe" className="text-[16px] w-full" {...field} />
+                  <Input
+                    placeholder="e.g. John Doe"
+                    className="text-[16px] w-full"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -172,16 +187,19 @@ export function EnquiryForm() {
               <FormItem>
                 <FormLabel>Phone Number</FormLabel>
                 <FormControl>
-                  <Input 
-                    placeholder="+91 9876543210" 
+                  <Input
+                    placeholder="+91 9876543210"
                     className="text-[16px] w-full"
-                    {...field} 
+                    {...field}
                     onChange={(e) => {
                       let val = e.target.value;
                       if (!val.startsWith("+91 ")) {
                         val = "+91 ";
                       }
-                      const digits = val.substring(4).replace(/\D/g, "").slice(0, 10);
+                      const digits = val
+                        .substring(4)
+                        .replace(/\D/g, "")
+                        .slice(0, 10);
                       field.onChange(`+91 ${digits}`);
                     }}
                   />
@@ -199,7 +217,12 @@ export function EnquiryForm() {
             <FormItem>
               <FormLabel>Child's Age (Optional)</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="e.g. 4" className="text-[16px] w-full" {...field} />
+                <Input
+                  type="number"
+                  placeholder="e.g. 4"
+                  className="text-[16px] w-full"
+                  {...field}
+                />
               </FormControl>
               {ageHint && (
                 <FormDescription className="text-school-blue font-medium">

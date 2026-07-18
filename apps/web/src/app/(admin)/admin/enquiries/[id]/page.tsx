@@ -4,7 +4,11 @@ import LeadDetailClient from "./lead-detail-client";
 
 export const dynamic = "force-dynamic";
 
-export default async function LeadDetailPage({ params }: { params: { id: string } }) {
+export default async function LeadDetailPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const cookieStore = cookies();
   const sessionToken = cookieStore.get("better-auth.session_token");
 
@@ -41,7 +45,9 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Lead Details</h1>
-        <p className="text-slate-500">View and manage information for this admission lead.</p>
+        <p className="text-slate-500">
+          View and manage information for this admission lead.
+        </p>
       </div>
 
       <LeadDetailClient enquiry={enquiry} />

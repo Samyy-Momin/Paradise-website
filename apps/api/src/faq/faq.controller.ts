@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { FaqService } from './faq.service';
 import { Prisma } from '@prisma/client';
 import { BetterAuthGuard } from '../common/guards/better-auth.guard';
@@ -25,7 +34,10 @@ export class FaqController {
 
   @Patch(':id')
   @UseGuards(BetterAuthGuard)
-  update(@Param('id') id: string, @Body() updateFaqDto: Prisma.FAQItemUpdateInput) {
+  update(
+    @Param('id') id: string,
+    @Body() updateFaqDto: Prisma.FAQItemUpdateInput,
+  ) {
     return this.faqService.update(id, updateFaqDto);
   }
 

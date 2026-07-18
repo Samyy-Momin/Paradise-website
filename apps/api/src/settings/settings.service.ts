@@ -13,8 +13,12 @@ export class SettingsService {
         ...settings,
         phones: settings.phones ? JSON.parse(settings.phones) : [],
         heroImages: settings.heroImages ? JSON.parse(settings.heroImages) : [],
-        aboutImages: settings.aboutImages ? JSON.parse(settings.aboutImages) : [],
-        instagramReels: settings.instagramReels ? JSON.parse(settings.instagramReels) : [],
+        aboutImages: settings.aboutImages
+          ? JSON.parse(settings.aboutImages)
+          : [],
+        instagramReels: settings.instagramReels
+          ? JSON.parse(settings.instagramReels)
+          : [],
       };
     }
     return {
@@ -40,7 +44,7 @@ export class SettingsService {
 
   async update(updateSettingDto: UpdateSettingDto) {
     const existing = await this.prisma.client.settings.findFirst();
-    
+
     const data: any = { ...updateSettingDto };
     if (updateSettingDto.phones) {
       data.phones = JSON.stringify(updateSettingDto.phones);
@@ -72,7 +76,9 @@ export class SettingsService {
       phones: updated.phones ? JSON.parse(updated.phones) : [],
       heroImages: updated.heroImages ? JSON.parse(updated.heroImages) : [],
       aboutImages: updated.aboutImages ? JSON.parse(updated.aboutImages) : [],
-      instagramReels: updated.instagramReels ? JSON.parse(updated.instagramReels) : [],
+      instagramReels: updated.instagramReels
+        ? JSON.parse(updated.instagramReels)
+        : [],
     };
   }
 }

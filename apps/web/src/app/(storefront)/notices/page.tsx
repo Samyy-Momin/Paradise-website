@@ -6,19 +6,24 @@ import { CalendarDays, ChevronRight } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Notices & Announcements | Paradise English School",
-  description: "Stay up to date with the latest news, notices, and events at Paradise English School and Tender Kidz Pre-School.",
+  description:
+    "Stay up to date with the latest news, notices, and events at Paradise English School and Tender Kidz Pre-School.",
 };
 
 export const revalidate = 60;
 
 async function getNotices() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/notices`, {
-      cache: "no-store",
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/notices`,
+      {
+        cache: "no-store",
+      },
+    );
     if (!res.ok) return [];
     return res.json();
-  } catch (error: any) { if (error?.digest === 'DYNAMIC_SERVER_USAGE') throw error;
+  } catch (error: any) {
+    if (error?.digest === "DYNAMIC_SERVER_USAGE") throw error;
     console.error("Failed to fetch notices:", error);
     return [];
   }
@@ -59,7 +64,9 @@ export default async function NoticesPage() {
                       </h2>
                       <div className="flex items-center text-slate-500 text-sm">
                         <CalendarDays className="w-4 h-4 mr-2" />
-                        {notice.publishAt ? format(new Date(notice.publishAt), "MMMM d, yyyy") : "No date"}
+                        {notice.publishAt
+                          ? format(new Date(notice.publishAt), "MMMM d, yyyy")
+                          : "No date"}
                       </div>
                       <p className="text-slate-600 line-clamp-2">
                         {notice.body}

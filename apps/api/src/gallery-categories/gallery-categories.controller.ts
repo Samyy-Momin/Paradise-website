@@ -1,11 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { GalleryCategoriesService } from './gallery-categories.service';
 import { Prisma } from '@prisma/client';
 import { BetterAuthGuard } from '../common/guards/better-auth.guard';
 
 @Controller('gallery-categories')
 export class GalleryCategoriesController {
-  constructor(private readonly galleryCategoriesService: GalleryCategoriesService) {}
+  constructor(
+    private readonly galleryCategoriesService: GalleryCategoriesService,
+  ) {}
 
   @Post()
   @UseGuards(BetterAuthGuard)
@@ -25,7 +36,10 @@ export class GalleryCategoriesController {
 
   @Patch(':id')
   @UseGuards(BetterAuthGuard)
-  update(@Param('id') id: string, @Body() updateGalleryCategoryDto: Prisma.GalleryCategoryUpdateInput) {
+  update(
+    @Param('id') id: string,
+    @Body() updateGalleryCategoryDto: Prisma.GalleryCategoryUpdateInput,
+  ) {
     return this.galleryCategoriesService.update(id, updateGalleryCategoryDto);
   }
 

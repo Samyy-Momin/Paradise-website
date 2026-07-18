@@ -28,7 +28,11 @@ const sidebarLinks = [
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
 
   return (
@@ -38,11 +42,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <aside className="w-64 bg-slate-900 text-white flex flex-col fixed inset-y-0 left-0 z-40">
           {/* Logo */}
           <div className="p-5 border-b border-slate-800">
-            <Link href="/admin/dashboard" className="flex items-center space-x-3">
-              <Image src="/logo.png" alt="Logo" width={36} height={36} className="h-9 w-auto" />
+            <Link
+              href="/admin/dashboard"
+              className="flex items-center space-x-3"
+            >
+              <Image
+                src="/logo.png"
+                alt="Logo"
+                width={36}
+                height={36}
+                className="h-9 w-auto"
+              />
               <div>
-                <div className="font-heading font-bold text-sm leading-tight">Paradise School</div>
-                <div className="text-[10px] text-slate-400 tracking-wider uppercase">Admin Panel</div>
+                <div className="font-heading font-bold text-sm leading-tight">
+                  Paradise School
+                </div>
+                <div className="text-[10px] text-slate-400 tracking-wider uppercase">
+                  Admin Panel
+                </div>
               </div>
             </Link>
           </div>
@@ -50,7 +67,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {/* Nav */}
           <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
             {sidebarLinks.map((link) => {
-              const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+              const isActive =
+                pathname === link.href || pathname.startsWith(link.href + "/");
               return (
                 <Link
                   key={link.href}
@@ -82,9 +100,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       )}
 
       {/* Main Content */}
-      <main className={`flex-1 ${!pathname.includes("/admin/login") ? "ml-64" : ""} bg-slate-50 min-h-screen`}>
-        <div className={!pathname.includes("/admin/login") ? "p-8" : "h-screen"}>
-          <div className={!pathname.includes("/admin/login") ? "max-w-6xl mx-auto" : "h-full"}>
+      <main
+        className={`flex-1 ${!pathname.includes("/admin/login") ? "ml-64" : ""} bg-slate-50 min-h-screen`}
+      >
+        <div
+          className={!pathname.includes("/admin/login") ? "p-8" : "h-screen"}
+        >
+          <div
+            className={
+              !pathname.includes("/admin/login")
+                ? "max-w-6xl mx-auto"
+                : "h-full"
+            }
+          >
             {children}
           </div>
         </div>

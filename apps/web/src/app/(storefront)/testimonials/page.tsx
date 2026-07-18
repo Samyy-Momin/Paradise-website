@@ -3,7 +3,8 @@ import TestimonialsClient from "./testimonials-client";
 
 export const metadata: Metadata = {
   title: "Parent Reviews & Testimonials | Paradise English School",
-  description: "Read what parents have to say about their children's experience at Paradise English School and Tender Kidz.",
+  description:
+    "Read what parents have to say about their children's experience at Paradise English School and Tender Kidz.",
 };
 
 export const revalidate = 60;
@@ -11,13 +12,17 @@ export const revalidate = 60;
 export default async function TestimonialsPage() {
   let initialTestimonials = [];
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/testimonials`, {
-      cache: "no-store",
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/testimonials`,
+      {
+        cache: "no-store",
+      },
+    );
     if (res.ok) {
       initialTestimonials = await res.json();
     }
-  } catch (error: any) { if (error?.digest === 'DYNAMIC_SERVER_USAGE') throw error;
+  } catch (error: any) {
+    if (error?.digest === "DYNAMIC_SERVER_USAGE") throw error;
     console.error("Failed to fetch testimonials:", error);
   }
 
@@ -29,7 +34,8 @@ export default async function TestimonialsPage() {
             Parent Reviews
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Read real experiences from our community, or leave a review to share your own story.
+            Read real experiences from our community, or leave a review to share
+            your own story.
           </p>
         </div>
 

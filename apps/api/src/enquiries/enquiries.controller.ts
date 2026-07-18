@@ -1,9 +1,30 @@
-import { Controller, Get, Post, Body, Patch, Param, Query, UseGuards, Req, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Query,
+  UseGuards,
+  Req,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { EnquiriesService } from './enquiries.service';
-import { CreateEnquiryDto, UpdateEnquiryStatusDto, CreateEnquiryNoteDto } from './dto/create-enquiry.dto';
+import {
+  CreateEnquiryDto,
+  UpdateEnquiryStatusDto,
+  CreateEnquiryNoteDto,
+} from './dto/create-enquiry.dto';
 import { GetEnquiriesQueryDto } from './dto/get-enquiries-query.dto';
 import { BetterAuthGuard } from '../common/guards/better-auth.guard';
-import { ApiTags, ApiOperation, ApiResponse, ApiCookieAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiCookieAuth,
+} from '@nestjs/swagger';
 
 @ApiTags('Enquiries')
 @Controller('enquiries')
@@ -37,7 +58,10 @@ export class EnquiriesController {
   @UseGuards(BetterAuthGuard)
   @ApiCookieAuth()
   @ApiOperation({ summary: 'Update enquiry pipeline stage' })
-  updateStatus(@Param('id') id: string, @Body() updateDto: UpdateEnquiryStatusDto) {
+  updateStatus(
+    @Param('id') id: string,
+    @Body() updateDto: UpdateEnquiryStatusDto,
+  ) {
     return this.enquiriesService.updateStatus(id, updateDto);
   }
 
@@ -49,7 +73,7 @@ export class EnquiriesController {
   addNote(
     @Param('id') id: string,
     @Req() req: any,
-    @Body() noteDto: CreateEnquiryNoteDto
+    @Body() noteDto: CreateEnquiryNoteDto,
   ) {
     return this.enquiriesService.addNote(id, req.user.id, noteDto);
   }

@@ -2,9 +2,19 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { User, Phone, MapPin, Calendar, Clock, Send, Info, FileText } from "lucide-react";
+import {
+  User,
+  Phone,
+  MapPin,
+  Calendar,
+  Clock,
+  Send,
+  Info,
+  FileText,
+} from "lucide-react";
 
-type EnquiryStatus = "NEW" | "CONTACTED" | "VISIT_SCHEDULED" | "ADMITTED" | "LOST";
+type EnquiryStatus =
+  "NEW" | "CONTACTED" | "VISIT_SCHEDULED" | "ADMITTED" | "LOST";
 
 interface Note {
   id: string;
@@ -43,13 +53,16 @@ export default function LeadDetailClient({ enquiry }: { enquiry: Enquiry }) {
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [isSubmittingNote, setIsSubmittingNote] = useState(false);
 
-  const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleStatusChange = async (
+    e: React.ChangeEvent<HTMLSelectElement>,
+  ) => {
     const newStatus = e.target.value as EnquiryStatus;
     setStatus(newStatus);
     setIsUpdatingStatus(true);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+      const apiUrl =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
       const res = await fetch(`${apiUrl}/enquiries/${enquiry.id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -57,7 +70,8 @@ export default function LeadDetailClient({ enquiry }: { enquiry: Enquiry }) {
       });
       if (!res.ok) throw new Error("Failed to update status");
       router.refresh();
-    } catch (error: any) { if (error?.digest === 'DYNAMIC_SERVER_USAGE') throw error;
+    } catch (error: any) {
+      if (error?.digest === "DYNAMIC_SERVER_USAGE") throw error;
       console.error(error);
       alert("Error updating status.");
       setStatus(enquiry.status); // Revert
@@ -72,7 +86,8 @@ export default function LeadDetailClient({ enquiry }: { enquiry: Enquiry }) {
 
     setIsSubmittingNote(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+      const apiUrl =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
       const res = await fetch(`${apiUrl}/enquiries/${enquiry.id}/notes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -81,7 +96,8 @@ export default function LeadDetailClient({ enquiry }: { enquiry: Enquiry }) {
       if (!res.ok) throw new Error("Failed to add note");
       setNewNote("");
       router.refresh();
-    } catch (error: any) { if (error?.digest === 'DYNAMIC_SERVER_USAGE') throw error;
+    } catch (error: any) {
+      if (error?.digest === "DYNAMIC_SERVER_USAGE") throw error;
       console.error(error);
       alert("Error adding note.");
     } finally {
@@ -111,7 +127,9 @@ export default function LeadDetailClient({ enquiry }: { enquiry: Enquiry }) {
               </option>
             ))}
           </select>
-          {isUpdatingStatus && <p className="text-xs text-slate-500 mt-2">Updating...</p>}
+          {isUpdatingStatus && (
+            <p className="text-xs text-slate-500 mt-2">Updating...</p>
+          )}
         </div>
 
         {/* Info Card */}
@@ -123,11 +141,16 @@ export default function LeadDetailClient({ enquiry }: { enquiry: Enquiry }) {
           <div className="space-y-4">
             <div>
               <p className="text-xs text-slate-500 mb-1">Parent Name</p>
-              <p className="text-sm font-medium text-slate-900">{enquiry.parentName}</p>
+              <p className="text-sm font-medium text-slate-900">
+                {enquiry.parentName}
+              </p>
             </div>
             <div>
               <p className="text-xs text-slate-500 mb-1">Phone Number</p>
-              <a href={`tel:${enquiry.phone}`} className="text-sm font-medium text-school-blue hover:underline flex items-center">
+              <a
+                href={`tel:${enquiry.phone}`}
+                className="text-sm font-medium text-school-blue hover:underline flex items-center"
+              >
                 <Phone className="w-3.5 h-3.5 mr-1" />
                 {enquiry.phone}
               </a>
@@ -135,7 +158,9 @@ export default function LeadDetailClient({ enquiry }: { enquiry: Enquiry }) {
             {enquiry.childAge && (
               <div>
                 <p className="text-xs text-slate-500 mb-1">Child's Age</p>
-                <p className="text-sm font-medium text-slate-900">{enquiry.childAge}</p>
+                <p className="text-sm font-medium text-slate-900">
+                  {enquiry.childAge}
+                </p>
               </div>
             )}
             <div>
@@ -182,7 +207,9 @@ export default function LeadDetailClient({ enquiry }: { enquiry: Enquiry }) {
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[calc(100vh-140px)]">
           {/* Header */}
           <div className="px-5 py-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-slate-800">Activity Timeline & Notes</h3>
+            <h3 className="text-sm font-semibold text-slate-800">
+              Activity Timeline & Notes
+            </h3>
             <span className="text-xs font-medium bg-school-yellow/20 text-school-yellow-dark px-2 py-1 rounded-full">
               {enquiry.notes.length} Notes
             </span>
@@ -196,7 +223,9 @@ export default function LeadDetailClient({ enquiry }: { enquiry: Enquiry }) {
                   <FileText className="w-8 h-8 text-slate-300" />
                 </div>
                 <p className="text-slate-500 font-medium">No notes yet.</p>
-                <p className="text-slate-400 text-sm mt-1">Add a note below to keep track of conversations.</p>
+                <p className="text-slate-400 text-sm mt-1">
+                  Add a note below to keep track of conversations.
+                </p>
               </div>
             ) : (
               <div className="relative border-l border-slate-200 ml-3 space-y-8">
@@ -205,13 +234,17 @@ export default function LeadDetailClient({ enquiry }: { enquiry: Enquiry }) {
                     <span className="absolute -left-1.5 top-1 w-3 h-3 rounded-full bg-school-blue ring-4 ring-white"></span>
                     <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
                       <div className="flex justify-between items-start mb-2">
-                        <span className="text-xs font-semibold text-slate-700">{note.author.name}</span>
+                        <span className="text-xs font-semibold text-slate-700">
+                          {note.author.name}
+                        </span>
                         <span className="text-[10px] text-slate-400 flex items-center">
                           <Clock className="w-3 h-3 mr-1" />
                           {new Date(note.createdAt).toLocaleString()}
                         </span>
                       </div>
-                      <p className="text-sm text-slate-600 whitespace-pre-wrap">{note.note}</p>
+                      <p className="text-sm text-slate-600 whitespace-pre-wrap">
+                        {note.note}
+                      </p>
                     </div>
                   </div>
                 ))}

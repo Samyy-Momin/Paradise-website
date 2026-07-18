@@ -1,11 +1,24 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "@hello-pangea/dnd";
 import Link from "next/link";
-import { Calendar, Phone, MapPin, User as UserIcon, Search, Filter } from "lucide-react";
+import {
+  Calendar,
+  Phone,
+  MapPin,
+  User as UserIcon,
+  Search,
+  Filter,
+} from "lucide-react";
 
-type EnquiryStatus = "NEW" | "CONTACTED" | "VISIT_SCHEDULED" | "ADMITTED" | "LOST";
+type EnquiryStatus =
+  "NEW" | "CONTACTED" | "VISIT_SCHEDULED" | "ADMITTED" | "LOST";
 
 interface Enquiry {
   id: string;
@@ -19,14 +32,38 @@ interface Enquiry {
 }
 
 const STAGES: { id: EnquiryStatus; label: string; color: string }[] = [
-  { id: "NEW", label: "New Lead", color: "bg-blue-100 border-blue-200 text-blue-800" },
-  { id: "CONTACTED", label: "Contacted", color: "bg-yellow-100 border-yellow-200 text-yellow-800" },
-  { id: "VISIT_SCHEDULED", label: "Visit Scheduled", color: "bg-purple-100 border-purple-200 text-purple-800" },
-  { id: "ADMITTED", label: "Admitted / Won", color: "bg-green-100 border-green-200 text-green-800" },
-  { id: "LOST", label: "Lost", color: "bg-red-100 border-red-200 text-red-800" },
+  {
+    id: "NEW",
+    label: "New Lead",
+    color: "bg-blue-100 border-blue-200 text-blue-800",
+  },
+  {
+    id: "CONTACTED",
+    label: "Contacted",
+    color: "bg-yellow-100 border-yellow-200 text-yellow-800",
+  },
+  {
+    id: "VISIT_SCHEDULED",
+    label: "Visit Scheduled",
+    color: "bg-purple-100 border-purple-200 text-purple-800",
+  },
+  {
+    id: "ADMITTED",
+    label: "Admitted / Won",
+    color: "bg-green-100 border-green-200 text-green-800",
+  },
+  {
+    id: "LOST",
+    label: "Lost",
+    color: "bg-red-100 border-red-200 text-red-800",
+  },
 ];
 
-export default function KanbanBoard({ initialEnquiries }: { initialEnquiries: Enquiry[] }) {
+export default function KanbanBoard({
+  initialEnquiries,
+}: {
+  initialEnquiries: Enquiry[];
+}) {
   const [isBrowser, setIsBrowser] = useState(false);
   const [enquiries, setEnquiries] = useState<Enquiry[]>(initialEnquiries);
   const [searchQuery, setSearchQuery] = useState("");
@@ -44,7 +81,10 @@ export default function KanbanBoard({ initialEnquiries }: { initialEnquiries: En
 
     if (!destination) return;
 
-    if (destination.droppableId === source.droppableId && destination.index === source.index) {
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
       return;
     }
 
@@ -53,12 +93,15 @@ export default function KanbanBoard({ initialEnquiries }: { initialEnquiries: En
     // Optimistic update
     const previousEnquiries = [...enquiries];
     setEnquiries((prev) =>
-      prev.map((enq) => (enq.id === draggableId ? { ...enq, status: newStatus } : enq))
+      prev.map((enq) =>
+        enq.id === draggableId ? { ...enq, status: newStatus } : enq,
+      ),
     );
 
     // Call API
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+      const apiUrl =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
       const res = await fetch(`${apiUrl}/enquiries/${draggableId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -67,7 +110,8 @@ export default function KanbanBoard({ initialEnquiries }: { initialEnquiries: En
       });
 
       if (!res.ok) throw new Error("Failed to update status");
-    } catch (error: any) { if (error?.digest === 'DYNAMIC_SERVER_USAGE') throw error;
+    } catch (error: any) {
+      if (error?.digest === "DYNAMIC_SERVER_USAGE") throw error;
       console.error(error);
       setEnquiries(previousEnquiries);
       alert("Error updating lead status.");
@@ -112,8 +156,7 @@ export default function KanbanBoard({ initialEnquiries }: { initialEnquiries: En
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         return (
-          e.parentName.toLowerCase().includes(query) ||
-          e.phone.includes(query)
+          e.parentName.toLowerCase().includes(query) || e.phone.includes(query)
         );
       }
       return true;
@@ -161,17 +204,17 @@ export default function KanbanBoard({ initialEnquiries }: { initialEnquiries: En
           </select>
           {dateFilter === "CUSTOM" && (
             <div className="flex items-center gap-2">
-              <input 
-                type="date" 
-                value={customStartDate} 
-                onChange={(e) => setCustomStartDate(e.target.value)} 
+              <input
+                type="date"
+                value={customStartDate}
+                onChange={(e) => setCustomStartDate(e.target.value)}
                 className="py-2 px-3 bg-slate-50 border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-school-blue/50"
               />
               <span className="text-slate-400 text-sm">to</span>
-              <input 
-                type="date" 
-                value={customEndDate} 
-                onChange={(e) => setCustomEndDate(e.target.value)} 
+              <input
+                type="date"
+                value={customEndDate}
+                onChange={(e) => setCustomEndDate(e.target.value)}
                 className="py-2 px-3 bg-slate-50 border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-school-blue/50"
               />
             </div>
@@ -181,84 +224,97 @@ export default function KanbanBoard({ initialEnquiries }: { initialEnquiries: En
 
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex gap-3 pb-4 h-[calc(100vh-280px)] w-full">
-        {STAGES.map((stage) => {
-          const stageLeads = getLeadsByStatus(stage.id);
+          {STAGES.map((stage) => {
+            const stageLeads = getLeadsByStatus(stage.id);
 
-          return (
-            <div
-              key={stage.id}
-              className="flex-1 min-w-0 bg-slate-100 rounded-lg flex flex-col shadow-sm border border-slate-200 overflow-hidden"
-            >
-              {/* Stage Header */}
-              <div className={`px-4 py-3 border-b flex justify-between items-center ${stage.color}`}>
-                <h3 className="font-semibold text-sm">{stage.label}</h3>
-                <span className="bg-white/50 px-2 py-0.5 rounded-full text-xs font-bold">
-                  {stageLeads.length}
-                </span>
-              </div>
+            return (
+              <div
+                key={stage.id}
+                className="flex-1 min-w-0 bg-slate-100 rounded-lg flex flex-col shadow-sm border border-slate-200 overflow-hidden"
+              >
+                {/* Stage Header */}
+                <div
+                  className={`px-4 py-3 border-b flex justify-between items-center ${stage.color}`}
+                >
+                  <h3 className="font-semibold text-sm">{stage.label}</h3>
+                  <span className="bg-white/50 px-2 py-0.5 rounded-full text-xs font-bold">
+                    {stageLeads.length}
+                  </span>
+                </div>
 
-              {/* Droppable Area */}
-              <Droppable droppableId={stage.id}>
-                {(provided, snapshot) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className={`flex-1 p-3 overflow-y-auto min-h-[150px] transition-colors ${
-                      snapshot.isDraggingOver ? "bg-slate-200" : ""
-                    }`}
-                  >
-                    {stageLeads.map((lead, index) => (
-                      <Draggable key={lead.id} draggableId={lead.id} index={index}>
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className={`mb-3 bg-white border border-slate-200 rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing ${
-                              snapshot.isDragging ? "shadow-lg ring-2 ring-school-blue ring-opacity-50" : ""
-                            }`}
-                            style={{ ...provided.draggableProps.style }}
-                          >
-                            <Link href={`/admin/enquiries/${lead.id}`} className="block">
-                              <div className="flex justify-between items-start mb-2">
-                                <h4 className="font-semibold text-slate-800 text-sm truncate pr-2">
-                                  {lead.parentName}
-                                </h4>
-                                <span className="text-xs text-slate-400 shrink-0">
-                                  {new Date(lead.createdAt).toLocaleDateString()}
-                                </span>
-                              </div>
-
-                              <div className="space-y-1.5 mt-3">
-                                <div className="flex items-center text-xs text-slate-600">
-                                  <Phone className="w-3.5 h-3.5 mr-2 text-slate-400" />
-                                  {lead.phone}
+                {/* Droppable Area */}
+                <Droppable droppableId={stage.id}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className={`flex-1 p-3 overflow-y-auto min-h-[150px] transition-colors ${
+                        snapshot.isDraggingOver ? "bg-slate-200" : ""
+                      }`}
+                    >
+                      {stageLeads.map((lead, index) => (
+                        <Draggable
+                          key={lead.id}
+                          draggableId={lead.id}
+                          index={index}
+                        >
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={`mb-3 bg-white border border-slate-200 rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing ${
+                                snapshot.isDragging
+                                  ? "shadow-lg ring-2 ring-school-blue ring-opacity-50"
+                                  : ""
+                              }`}
+                              style={{ ...provided.draggableProps.style }}
+                            >
+                              <Link
+                                href={`/admin/enquiries/${lead.id}`}
+                                className="block"
+                              >
+                                <div className="flex justify-between items-start mb-2">
+                                  <h4 className="font-semibold text-slate-800 text-sm truncate pr-2">
+                                    {lead.parentName}
+                                  </h4>
+                                  <span className="text-xs text-slate-400 shrink-0">
+                                    {new Date(
+                                      lead.createdAt,
+                                    ).toLocaleDateString()}
+                                  </span>
                                 </div>
-                                {lead.childAge && (
+
+                                <div className="space-y-1.5 mt-3">
                                   <div className="flex items-center text-xs text-slate-600">
-                                    <UserIcon className="w-3.5 h-3.5 mr-2 text-slate-400" />
-                                    Age: {lead.childAge}
+                                    <Phone className="w-3.5 h-3.5 mr-2 text-slate-400" />
+                                    {lead.phone}
                                   </div>
-                                )}
-                                <div className="flex items-center text-xs text-slate-600">
-                                  <MapPin className="w-3.5 h-3.5 mr-2 text-slate-400" />
-                                  {lead.branch.replace(/_/g, " ")}
+                                  {lead.childAge && (
+                                    <div className="flex items-center text-xs text-slate-600">
+                                      <UserIcon className="w-3.5 h-3.5 mr-2 text-slate-400" />
+                                      Age: {lead.childAge}
+                                    </div>
+                                  )}
+                                  <div className="flex items-center text-xs text-slate-600">
+                                    <MapPin className="w-3.5 h-3.5 mr-2 text-slate-400" />
+                                    {lead.branch.replace(/_/g, " ")}
+                                  </div>
                                 </div>
-                              </div>
-                            </Link>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </div>
-          );
-        })}
-      </div>
-    </DragDropContext>
+                              </Link>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </div>
+            );
+          })}
+        </div>
+      </DragDropContext>
     </div>
   );
 }

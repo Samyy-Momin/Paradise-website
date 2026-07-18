@@ -57,14 +57,18 @@ export default function TestimonialsAdminPage() {
   const fetchTestimonials = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/testimonials?includeUnapproved=true`, {
-        credentials: "include", // send auth cookie
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/testimonials?includeUnapproved=true`,
+        {
+          credentials: "include", // send auth cookie
+        },
+      );
       if (res.ok) {
         const data = await res.json();
         setItems(data || []);
       }
-    } catch (err: any) { if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    } catch (err: any) {
+      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
     } finally {
       setLoading(false);
@@ -86,17 +90,21 @@ export default function TestimonialsAdminPage() {
 
   const onSubmit = async (data: TestimonialFormValues) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/testimonials`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "omit", // Public endpoint
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/testimonials`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "omit", // Public endpoint
+          body: JSON.stringify(data),
+        },
+      );
 
       if (!res.ok) throw new Error("Failed to submit testimonial");
       setIsModalOpen(false);
       fetchTestimonials();
-    } catch (err: any) { if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    } catch (err: any) {
+      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
       alert("Error submitting testimonial.");
     }
@@ -109,13 +117,16 @@ export default function TestimonialsAdminPage() {
         {
           method: "PATCH",
           credentials: "include",
-        }
+        },
       );
       if (!res.ok) throw new Error("Failed to approve");
       fetchTestimonials();
-    } catch (err: any) { if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    } catch (err: any) {
+      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
-      alert("Error approving testimonial. Check if you are logged in as admin.");
+      alert(
+        "Error approving testimonial. Check if you are logged in as admin.",
+      );
     }
   };
 
@@ -127,11 +138,12 @@ export default function TestimonialsAdminPage() {
         {
           method: "DELETE",
           credentials: "include",
-        }
+        },
       );
       if (!res.ok) throw new Error("Failed to delete");
       fetchTestimonials();
-    } catch (err: any) { if (err?.digest === 'DYNAMIC_SERVER_USAGE') throw err;
+    } catch (err: any) {
+      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
       alert("Error deleting testimonial.");
     }
@@ -140,8 +152,13 @@ export default function TestimonialsAdminPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-heading font-bold text-slate-900">Testimonials</h1>
-        <Button onClick={openCreate} className="bg-school-blue hover:bg-school-blue/90">
+        <h1 className="text-3xl font-heading font-bold text-slate-900">
+          Testimonials
+        </h1>
+        <Button
+          onClick={openCreate}
+          className="bg-school-blue hover:bg-school-blue/90"
+        >
           <Plus className="w-4 h-4 mr-2" />
           Add Testimonial
         </Button>
@@ -167,20 +184,29 @@ export default function TestimonialsAdminPage() {
               </TableRow>
             ) : items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center text-slate-500">
+                <TableCell
+                  colSpan={5}
+                  className="h-24 text-center text-slate-500"
+                >
                   No testimonials found.
                 </TableCell>
               </TableRow>
             ) : (
               items.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell className="font-medium whitespace-nowrap">{item.parentName}</TableCell>
-                  <TableCell className="max-w-[300px] truncate">{item.content}</TableCell>
+                  <TableCell className="font-medium whitespace-nowrap">
+                    {item.parentName}
+                  </TableCell>
+                  <TableCell className="max-w-[300px] truncate">
+                    {item.content}
+                  </TableCell>
                   <TableCell>{item.rating}/5</TableCell>
                   <TableCell>
                     <span
                       className={`px-2 py-1 rounded text-xs font-semibold ${
-                        item.approved ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
+                        item.approved
+                          ? "bg-green-100 text-green-800"
+                          : "bg-yellow-100 text-yellow-800"
                       }`}
                     >
                       {item.approved ? "Approved" : "Pending"}
@@ -189,12 +215,20 @@ export default function TestimonialsAdminPage() {
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       {!item.approved && (
-                        <Button variant="outline" size="sm" onClick={() => handleApprove(item.id)}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleApprove(item.id)}
+                        >
                           <CheckCircle className="w-4 h-4 mr-1 text-green-600" />
                           Approve
                         </Button>
                       )}
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDelete(item.id)}
+                      >
                         <Trash2 className="w-4 h-4 text-red-600" />
                       </Button>
                     </div>
@@ -233,7 +267,11 @@ export default function TestimonialsAdminPage() {
                   <FormItem>
                     <FormLabel>Content</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Review details..." rows={3} {...field} />
+                      <Textarea
+                        placeholder="Review details..."
+                        rows={3}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -246,18 +284,30 @@ export default function TestimonialsAdminPage() {
                   <FormItem>
                     <FormLabel>Rating (1-5)</FormLabel>
                     <FormControl>
-                      <Input type="number" min={1} max={5} {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
+                      <Input
+                        type="number"
+                        min={1}
+                        max={5}
+                        {...field}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <div className="flex justify-end space-x-2 pt-4">
-                <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsModalOpen(false)}
+                >
                   Cancel
                 </Button>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  {form.formState.isSubmitting && (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  )}
                   Save
                 </Button>
               </div>

@@ -23,7 +23,7 @@ export async function middleware(request: NextRequest) {
         "http://localhost:4000/api";
       const res = await fetch(`${apiUrl}/auth/get-session`, {
         headers: {
-          Cookie: `${sessionCookie.name}=${sessionCookie.value}`,
+          Authorization: `Bearer ${sessionCookie.value}`,
         },
       });
 

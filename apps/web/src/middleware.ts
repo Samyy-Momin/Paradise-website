@@ -7,19 +7,23 @@ export async function middleware(request: NextRequest) {
   // Only protect /admin routes (except login)
   if (pathname.startsWith("/admin") && !pathname.includes("/admin/login")) {
     // Check session via better-auth cookie
-    const sessionCookie = request.cookies.get("better-auth.session_token");
+    const sessionCookie =
+      request.cookies.get("better-auth.session_token") ||
+      request.cookies.get("__Secure-better-auth.session_token");
 
     if (!sessionCookie) {
       return NextResponse.redirect(new URL("/admin/login", request.url));
     }
 
     try {
-      // Validate session with the backend API
+      // Validate session with the backend API directly
       const apiUrl =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+        process.env.BACKEND_API_URL ||
+        process.env.NEXT_PUBLIC_API_URL ||
+        "http://localhost:4000/api";
       const res = await fetch(`${apiUrl}/auth/get-session`, {
         headers: {
-          Cookie: `better-auth.session_token=${sessionCookie.value}`,
+          Cookie: `${sessionCookie.name}=${sessionCookie.value}`,
         },
       });
 

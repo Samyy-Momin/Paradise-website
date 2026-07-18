@@ -12,7 +12,9 @@ export async function middleware(request: NextRequest) {
       request.cookies.get("__Secure-better-auth.session_token");
 
     if (!sessionCookie) {
-      return NextResponse.redirect(new URL("/admin/login", request.url));
+      return NextResponse.redirect(
+        new URL("/admin/login?error=no_cookie", request.url),
+      );
     }
 
     try {
@@ -28,7 +30,9 @@ export async function middleware(request: NextRequest) {
       });
 
       if (!res.ok) {
-        return NextResponse.redirect(new URL("/admin/login", request.url));
+        return NextResponse.redirect(
+          new URL(`/admin/login?error=not_ok_${res.status}`, request.url),
+        );
       }
 
       // Check role if needed
@@ -39,7 +43,12 @@ export async function middleware(request: NextRequest) {
     } catch (error: any) {
       if (error?.digest === "DYNAMIC_SERVER_USAGE") throw error;
       console.error("Middleware session check failed:", error);
-      return NextResponse.redirect(new URL("/admin/login", request.url));
+      return NextResponse.redirect(
+        new URL(
+          `/admin/login?error=fetch_failed_${error.message.replace(/\s/g, "_")}`,
+          request.url,
+        ),
+      );
     }
   }
 

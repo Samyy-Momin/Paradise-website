@@ -12,11 +12,30 @@ export async function GET(
   const targetUrl = `${BACKEND_URL}/auth/${pathStr}${url.search}`;
 
   const headers = new Headers();
-  // Forward relevant headers
+
+  // Forward all necessary headers for Better Auth to work behind a proxy
   const cookie = request.headers.get("cookie");
   if (cookie) headers.set("cookie", cookie);
+
   const auth = request.headers.get("authorization");
   if (auth) headers.set("authorization", auth);
+
+  const origin = request.headers.get("origin");
+  if (origin) headers.set("origin", origin);
+
+  const host = request.headers.get("host");
+  if (host) {
+    headers.set("host", host);
+    headers.set("x-forwarded-host", host);
+  }
+
+  const userAgent = request.headers.get("user-agent");
+  if (userAgent) headers.set("user-agent", userAgent);
+
+  const ip = request.headers.get("x-forwarded-for");
+  if (ip) headers.set("x-forwarded-for", ip);
+
+  headers.set("x-forwarded-proto", "https");
   headers.set("content-type", "application/json");
 
   const res = await fetch(targetUrl, {
@@ -51,10 +70,30 @@ export async function POST(
   const targetUrl = `${BACKEND_URL}/auth/${pathStr}${url.search}`;
 
   const headers = new Headers();
+
+  // Forward all necessary headers for Better Auth to work behind a proxy
   const cookie = request.headers.get("cookie");
   if (cookie) headers.set("cookie", cookie);
+
   const auth = request.headers.get("authorization");
   if (auth) headers.set("authorization", auth);
+
+  const origin = request.headers.get("origin");
+  if (origin) headers.set("origin", origin);
+
+  const host = request.headers.get("host");
+  if (host) {
+    headers.set("host", host);
+    headers.set("x-forwarded-host", host);
+  }
+
+  const userAgent = request.headers.get("user-agent");
+  if (userAgent) headers.set("user-agent", userAgent);
+
+  const ip = request.headers.get("x-forwarded-for");
+  if (ip) headers.set("x-forwarded-for", ip);
+
+  headers.set("x-forwarded-proto", "https");
   headers.set("content-type", "application/json");
 
   let body: string | undefined;

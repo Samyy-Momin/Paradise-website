@@ -19,5 +19,9 @@ export const auth = betterAuth({
         'http://127.0.0.1:3000',
       ]
     : ['http://localhost:3000', 'http://127.0.0.1:3000'],
+  advanced: {
+    useSecureCookies: process.env.NODE_ENV === 'production',
+  },
+  trustHost: true,
   plugins: [admin()],
 });

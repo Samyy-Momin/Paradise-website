@@ -11,7 +11,10 @@ import {
   Send,
   Info,
   FileText,
+  Loader2,
 } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api-client";
 
 type EnquiryStatus =
   "NEW" | "CONTACTED" | "VISIT_SCHEDULED" | "ADMITTED" | "LOST";
@@ -46,64 +49,65 @@ const STAGES: { id: EnquiryStatus; label: string }[] = [
   { id: "LOST", label: "Lost" },
 ];
 
-export default function LeadDetailClient({ enquiry }: { enquiry: Enquiry }) {
-  const router = useRouter();
-  const [status, setStatus] = useState<EnquiryStatus>(enquiry.status);
+export default function LeadDetailClient({ id }: { id: string }) {
+  const queryClient = useQueryClient();
   const [newNote, setNewNote] = useState("");
-  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
-  const [isSubmittingNote, setIsSubmittingNote] = useState(false);
 
-  const handleStatusChange = async (
-    e: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
-    const newStatus = e.target.value as EnquiryStatus;
-    setStatus(newStatus);
-    setIsUpdatingStatus(true);
+  const { data: enquiry, isLoading, isError } = useQuery<Enquiry>({
+    queryKey: ["enquiry", id],
+    queryFn: async () => {
+      const res = await apiClient.get(`/enquiries/${id}`);
+      return res.data;
+    },
+  });
 
-    try {
-      const apiUrl =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
-      const res = await fetch(`${apiUrl}/enquiries/${enquiry.id}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      if (!res.ok) throw new Error("Failed to update status");
-      router.refresh();
-    } catch (error: any) {
-      if (error?.digest === "DYNAMIC_SERVER_USAGE") throw error;
-      console.error(error);
+  const statusMutation = useMutation({
+    mutationFn: async (status: EnquiryStatus) => {
+      await apiClient.patch(`/enquiries/${id}/status`, { status });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["enquiry", id] });
+    },
+    onError: () => {
       alert("Error updating status.");
-      setStatus(enquiry.status); // Revert
-    } finally {
-      setIsUpdatingStatus(false);
-    }
+    },
+  });
+
+  const noteMutation = useMutation({
+    mutationFn: async (note: string) => {
+      await apiClient.post(`/enquiries/${id}/notes`, { note });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["enquiry", id] });
+      setNewNote("");
+    },
+    onError: () => {
+      alert("Error adding note.");
+    },
+  });
+
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newStatus = e.target.value as EnquiryStatus;
+    statusMutation.mutate(newStatus);
   };
 
-  const handleAddNote = async (e: React.FormEvent) => {
+  const handleAddNote = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newNote.trim()) return;
-
-    setIsSubmittingNote(true);
-    try {
-      const apiUrl =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
-      const res = await fetch(`${apiUrl}/enquiries/${enquiry.id}/notes`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ note: newNote }),
-      });
-      if (!res.ok) throw new Error("Failed to add note");
-      setNewNote("");
-      router.refresh();
-    } catch (error: any) {
-      if (error?.digest === "DYNAMIC_SERVER_USAGE") throw error;
-      console.error(error);
-      alert("Error adding note.");
-    } finally {
-      setIsSubmittingNote(false);
-    }
+    noteMutation.mutate(newNote);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-school-blue" />
+      </div>
+    );
+  }
+
+  if (isError || !enquiry) {
+    return <div className="text-red-500">Failed to load enquiry details.</div>;
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -116,9 +120,9 @@ export default function LeadDetailClient({ enquiry }: { enquiry: Enquiry }) {
             Lead Status
           </h3>
           <select
-            value={status}
+            value={enquiry.status}
             onChange={handleStatusChange}
-            disabled={isUpdatingStatus}
+            disabled={statusMutation.isPending}
             className="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-school-blue focus:border-school-blue block p-2.5"
           >
             {STAGES.map((s) => (
@@ -127,7 +131,7 @@ export default function LeadDetailClient({ enquiry }: { enquiry: Enquiry }) {
               </option>
             ))}
           </select>
-          {isUpdatingStatus && (
+          {statusMutation.isPending && (
             <p className="text-xs text-slate-500 mt-2">Updating...</p>
           )}
         </div>
@@ -261,16 +265,16 @@ export default function LeadDetailClient({ enquiry }: { enquiry: Enquiry }) {
                 placeholder="Write a follow-up note..."
                 value={newNote}
                 onChange={(e) => setNewNote(e.target.value)}
-                disabled={isSubmittingNote}
+                disabled={noteMutation.isPending}
               ></textarea>
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  disabled={!newNote.trim() || isSubmittingNote}
+                  disabled={!newNote.trim() || noteMutation.isPending}
                   className="inline-flex items-center px-4 py-2 bg-school-blue text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <Send className="w-4 h-4 mr-2" />
-                  {isSubmittingNote ? "Saving..." : "Add Note"}
+                  {noteMutation.isPending ? "Saving..." : "Add Note"}
                 </button>
               </div>
             </form>

@@ -15,6 +15,7 @@ import {
   ClipboardList,
   LogOut,
 } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 
 const sidebarLinks = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -87,14 +88,24 @@ export default function AdminLayout({
           </nav>
 
           {/* Bottom */}
-          <div className="p-3 border-t border-slate-800">
+          <div className="p-3 border-t border-slate-800 space-y-2">
             <Link
               href="/"
               className="flex items-center space-x-3 rounded-lg px-3 py-2.5 text-sm text-slate-400 hover:bg-slate-800 hover:text-white transition-all"
             >
-              <LogOut className="h-4 w-4" />
+              <FileText className="h-4 w-4" />
               <span>Back to Site</span>
             </Link>
+            <button
+              onClick={async () => {
+                await authClient.signOut();
+                window.location.href = "/admin/login";
+              }}
+              className="w-full flex items-center space-x-3 rounded-lg px-3 py-2.5 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Logout</span>
+            </button>
           </div>
         </aside>
       )}

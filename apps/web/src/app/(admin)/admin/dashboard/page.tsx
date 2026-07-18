@@ -1,34 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import { apiClient } from "@/lib/api-client";
 
 export default function AdminDashboardPage() {
-  const [stats, setStats] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchStats() {
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/dashboard/stats`,
-          {
-            credentials: "include",
-          },
-        );
-        if (res.ok) {
-          const data = await res.json();
-          setStats(data);
-        }
-      } catch (error: any) {
-        if (error?.digest === "DYNAMIC_SERVER_USAGE") throw error;
-        console.error("Failed to fetch dashboard stats", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchStats();
-  }, []);
+  const { data: stats, isLoading: loading } = useQuery({
+    queryKey: ["dashboardStats"],
+    queryFn: async () => {
+      const res = await apiClient.get("/dashboard/stats");
+      return res.data;
+    },
+  });
 
   return (
     <div className="space-y-6">

@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api-client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -55,9 +57,7 @@ const categorySchema = z.object({
 type CategoryFormValues = z.infer<typeof categorySchema>;
 
 export default function GalleryCategoriesAdminPage() {
-  const [categories, setCategories] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
+  const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -73,30 +73,45 @@ export default function GalleryCategoriesAdminPage() {
     },
   });
 
-  const fetchCategories = useCallback(async () => {
-    try {
-      setLoading(true);
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery-categories`,
-        {
-          credentials: "omit",
-        },
-      );
-      if (res.ok) {
-        const data = await res.json();
-        setCategories(data || []);
-      }
-    } catch (err: any) {
-      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const { data: categories = [], isLoading: loading } = useQuery<any[]>({
+    queryKey: ["galleryCategories"],
+    queryFn: async () => {
+      const res = await apiClient.get("/gallery-categories");
+      return res.data || [];
+    },
+  });
 
-  useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
+  const saveMutation = useMutation({
+    mutationFn: async (data: CategoryFormValues) => {
+      const url = editingId ? `/gallery-categories/${editingId}` : "/gallery-categories";
+      const method = editingId ? "patch" : "post";
+      const res = await apiClient[method](url, data);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["galleryCategories"] });
+      setIsModalOpen(false);
+    },
+    onError: (err: any) => {
+      console.error(err);
+      alert(err.response?.data?.message || err.message || "Error saving category");
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiClient.delete(`/gallery-categories/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["galleryCategories"] });
+      setDeleteConfirmOpen(false);
+      setItemToDelete(null);
+    },
+    onError: (err: any) => {
+      console.error(err);
+      alert(err.response?.data?.message || err.message || "Error deleting category");
+    },
+  });
 
   // Auto-generate slug from name if slug is empty
   const watchName = form.watch("name");
@@ -130,32 +145,8 @@ export default function GalleryCategoriesAdminPage() {
     setIsModalOpen(true);
   };
 
-  const onSubmit = async (data: CategoryFormValues) => {
-    try {
-      const url = editingId
-        ? `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery-categories/${editingId}`
-        : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery-categories`;
-
-      const method = editingId ? "PATCH" : "POST";
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(data),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to save category");
-      }
-      setIsModalOpen(false);
-      fetchCategories();
-    } catch (err: any) {
-      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
-      console.error(err);
-      alert(err.message || "Error saving category");
-    }
+  const onSubmit = (data: CategoryFormValues) => {
+    saveMutation.mutate(data);
   };
 
   const confirmDelete = (id: string) => {
@@ -163,28 +154,9 @@ export default function GalleryCategoriesAdminPage() {
     setDeleteConfirmOpen(true);
   };
 
-  const handleDelete = async () => {
-    if (!itemToDelete) return;
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery-categories/${itemToDelete}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        },
-      );
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to delete category");
-      }
-      fetchCategories();
-    } catch (err: any) {
-      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
-      console.error(err);
-      alert(err.message || "Error deleting category");
-    } finally {
-      setDeleteConfirmOpen(false);
-      setItemToDelete(null);
+  const handleDelete = () => {
+    if (itemToDelete) {
+      deleteMutation.mutate(itemToDelete);
     }
   };
 

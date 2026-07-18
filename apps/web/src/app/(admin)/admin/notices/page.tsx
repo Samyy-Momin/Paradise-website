@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api-client";
 
 import { FileUploadField } from "@/components/admin/FileUploadField";
 import { Button } from "@/components/ui/button";
@@ -54,9 +56,7 @@ const noticeSchema = z.object({
 type NoticeFormValues = z.infer<typeof noticeSchema>;
 
 export default function NoticesAdminPage() {
-  const [notices, setNotices] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
+  const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -74,30 +74,48 @@ export default function NoticesAdminPage() {
     },
   });
 
-  const fetchNotices = useCallback(async () => {
-    try {
-      setLoading(true);
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/notices?limit=100`,
-        {
-          credentials: "omit", // public endpoint
-        },
-      );
-      if (res.ok) {
-        const json = await res.json();
-        setNotices(json.data || []);
-      }
-    } catch (err: any) {
-      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const { data: notices = [], isLoading: loading } = useQuery<any[]>({
+    queryKey: ["notices"],
+    queryFn: async () => {
+      const res = await apiClient.get("/notices?limit=100");
+      return res.data?.data || [];
+    },
+  });
 
-  useEffect(() => {
-    fetchNotices();
-  }, [fetchNotices]);
+  const saveMutation = useMutation({
+    mutationFn: async (data: NoticeFormValues) => {
+      const url = editingId ? `/notices/${editingId}` : "/notices";
+      const method = editingId ? "patch" : "post";
+      const res = await apiClient[method](url, {
+        ...data,
+        publishAt: new Date(data.publishAt).toISOString(),
+      });
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notices"] });
+      setIsModalOpen(false);
+    },
+    onError: (err) => {
+      console.error(err);
+      alert("Error saving notice. Check if you are logged in as admin.");
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiClient.delete(`/notices/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notices"] });
+      setDeleteConfirmOpen(false);
+      setItemToDelete(null);
+    },
+    onError: (err) => {
+      console.error(err);
+      alert("Error deleting notice");
+    },
+  });
 
   const openCreate = () => {
     setEditingId(null);
@@ -125,33 +143,8 @@ export default function NoticesAdminPage() {
     setIsModalOpen(true);
   };
 
-  const onSubmit = async (data: NoticeFormValues) => {
-    try {
-      const url = editingId
-        ? `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/notices/${editingId}`
-        : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/notices`;
-
-      const method = editingId ? "PATCH" : "POST";
-
-      // Include credentials to send Better Auth cookie
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          ...data,
-          publishAt: new Date(data.publishAt).toISOString(),
-        }),
-      });
-
-      if (!res.ok) throw new Error("Failed to save notice");
-      setIsModalOpen(false);
-      fetchNotices();
-    } catch (err: any) {
-      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
-      console.error(err);
-      alert("Error saving notice. Check if you are logged in as admin.");
-    }
+  const onSubmit = (data: NoticeFormValues) => {
+    saveMutation.mutate(data);
   };
 
   const confirmDelete = (id: string) => {
@@ -159,25 +152,9 @@ export default function NoticesAdminPage() {
     setDeleteConfirmOpen(true);
   };
 
-  const handleDelete = async () => {
-    if (!itemToDelete) return;
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/notices/${itemToDelete}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        },
-      );
-      if (!res.ok) throw new Error("Failed to delete notice");
-      fetchNotices();
-    } catch (err: any) {
-      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
-      console.error(err);
-      alert("Error deleting notice");
-    } finally {
-      setDeleteConfirmOpen(false);
-      setItemToDelete(null);
+  const handleDelete = () => {
+    if (itemToDelete) {
+      deleteMutation.mutate(itemToDelete);
     }
   };
 
@@ -255,7 +232,7 @@ export default function NoticesAdminPage() {
 
       {/* Create/Edit Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[500px] max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingId ? "Edit Notice" : "Add Notice"}

@@ -15,7 +15,10 @@ import {
   User as UserIcon,
   Search,
   Filter,
+  Loader2,
 } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api-client";
 
 type EnquiryStatus =
   "NEW" | "CONTACTED" | "VISIT_SCHEDULED" | "ADMITTED" | "LOST";
@@ -59,13 +62,9 @@ const STAGES: { id: EnquiryStatus; label: string; color: string }[] = [
   },
 ];
 
-export default function KanbanBoard({
-  initialEnquiries,
-}: {
-  initialEnquiries: Enquiry[];
-}) {
+export default function KanbanBoard() {
+  const queryClient = useQueryClient();
   const [isBrowser, setIsBrowser] = useState(false);
-  const [enquiries, setEnquiries] = useState<Enquiry[]>(initialEnquiries);
   const [searchQuery, setSearchQuery] = useState("");
   const [branchFilter, setBranchFilter] = useState<string>("ALL");
   const [dateFilter, setDateFilter] = useState<string>("ALL");
@@ -76,11 +75,42 @@ export default function KanbanBoard({
     setIsBrowser(true);
   }, []);
 
-  const onDragEnd = async (result: DropResult) => {
+  const { data: enquiries = [], isLoading } = useQuery<Enquiry[]>({
+    queryKey: ["enquiries"],
+    queryFn: async () => {
+      const res = await apiClient.get("/enquiries");
+      return res.data?.data || [];
+    },
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: EnquiryStatus }) => {
+      const res = await apiClient.patch(`/enquiries/${id}/status`, { status });
+      return res.data;
+    },
+    onMutate: async ({ id, status }) => {
+      await queryClient.cancelQueries({ queryKey: ["enquiries"] });
+      const previousEnquiries = queryClient.getQueryData<Enquiry[]>(["enquiries"]);
+      queryClient.setQueryData<Enquiry[]>(["enquiries"], (old) =>
+        old?.map((enq) => (enq.id === id ? { ...enq, status } : enq))
+      );
+      return { previousEnquiries };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousEnquiries) {
+        queryClient.setQueryData(["enquiries"], context.previousEnquiries);
+      }
+      alert("Error updating lead status.");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["enquiries"] });
+    },
+  });
+
+  const onDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result;
 
     if (!destination) return;
-
     if (
       destination.droppableId === source.droppableId &&
       destination.index === source.index
@@ -89,33 +119,7 @@ export default function KanbanBoard({
     }
 
     const newStatus = destination.droppableId as EnquiryStatus;
-
-    // Optimistic update
-    const previousEnquiries = [...enquiries];
-    setEnquiries((prev) =>
-      prev.map((enq) =>
-        enq.id === draggableId ? { ...enq, status: newStatus } : enq,
-      ),
-    );
-
-    // Call API
-    try {
-      const apiUrl =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
-      const res = await fetch(`${apiUrl}/enquiries/${draggableId}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      if (!res.ok) throw new Error("Failed to update status");
-    } catch (error: any) {
-      if (error?.digest === "DYNAMIC_SERVER_USAGE") throw error;
-      console.error(error);
-      setEnquiries(previousEnquiries);
-      alert("Error updating lead status.");
-    }
+    updateStatusMutation.mutate({ id: draggableId, status: newStatus });
   };
 
   const getLeadsByStatus = (status: EnquiryStatus) => {

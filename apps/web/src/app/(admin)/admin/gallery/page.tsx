@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useRef } from "react";
 import {
   Plus,
   Trash2,
@@ -10,6 +10,8 @@ import {
   X,
   FileImage,
 } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api-client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -39,10 +41,7 @@ import {
 import { Input } from "@/components/ui/input";
 
 export default function GalleryAdminPage() {
-  const [items, setItems] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
+  const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
@@ -56,41 +55,38 @@ export default function GalleryAdminPage() {
   const [uploadMode, setUploadMode] = useState<"upload" | "link">("upload");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const fetchData = useCallback(async () => {
-    try {
-      setLoading(true);
-      const [itemsRes, catsRes] = await Promise.all([
-        fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery`,
-          {
-            credentials: "omit",
-          },
-        ),
-        fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery-categories`,
-          {
-            credentials: "omit",
-          },
-        ),
-      ]);
+  const { data: items = [], isLoading: itemsLoading } = useQuery<any[]>({
+    queryKey: ["gallery"],
+    queryFn: async () => {
+      const res = await apiClient.get("/gallery");
+      return res.data || [];
+    },
+  });
 
-      if (itemsRes.ok && catsRes.ok) {
-        const itemsData = await itemsRes.json();
-        const catsData = await catsRes.json();
-        setItems(itemsData || []);
-        setCategories(catsData || []);
-      }
-    } catch (err: any) {
-      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
+  const { data: categories = [], isLoading: catsLoading } = useQuery<any[]>({
+    queryKey: ["galleryCategories"],
+    queryFn: async () => {
+      const res = await apiClient.get("/gallery-categories");
+      return res.data || [];
+    },
+  });
+
+  const loading = itemsLoading || catsLoading;
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiClient.delete(`/gallery/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["gallery"] });
+      setDeleteConfirmOpen(false);
+      setItemToDelete(null);
+    },
+    onError: (err) => {
       console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+      alert("Error deleting gallery item");
+    },
+  });
 
   const openCreate = () => {
     setCategoryId(categories.length > 0 ? categories[0].id : "");
@@ -140,16 +136,7 @@ export default function GalleryAdminPage() {
   };
 
   const createGalleryItem = async (url: string) => {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ url, categoryId, altText }),
-      },
-    );
-    if (!res.ok) throw new Error("Failed to save gallery item");
+    await apiClient.post("/gallery", { url, categoryId, altText });
   };
 
   const onSubmitBulk = async () => {
@@ -172,9 +159,8 @@ export default function GalleryAdminPage() {
         }
       }
       setIsModalOpen(false);
-      fetchData();
+      queryClient.invalidateQueries({ queryKey: ["gallery"] });
     } catch (err: any) {
-      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
       alert(err.message || "Error saving images.");
     } finally {
@@ -187,25 +173,9 @@ export default function GalleryAdminPage() {
     setDeleteConfirmOpen(true);
   };
 
-  const handleDelete = async () => {
-    if (!itemToDelete) return;
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/gallery/${itemToDelete}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        },
-      );
-      if (!res.ok) throw new Error("Failed to delete gallery item");
-      fetchData();
-    } catch (err: any) {
-      if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
-      console.error(err);
-      alert("Error deleting");
-    } finally {
-      setDeleteConfirmOpen(false);
-      setItemToDelete(null);
+  const handleDelete = () => {
+    if (itemToDelete) {
+      deleteMutation.mutate(itemToDelete);
     }
   };
 

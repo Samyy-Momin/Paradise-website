@@ -38,16 +38,9 @@ async function proxyRequest(request: NextRequest, path: string[]) {
   const contentType = request.headers.get("content-type");
   if (contentType) headers.set("content-type", contentType);
 
-  let body: BodyInit | undefined;
+  let body: any = undefined;
   if (request.method !== "GET" && request.method !== "HEAD") {
-    // For POST/PUT/PATCH, we can just pass the stream if we use duplex
-    try {
-      // In Next.js App Router, we can read the body as an ArrayBuffer or Blob
-      // to support file uploads (multipart/form-data) properly
-      body = await request.arrayBuffer();
-    } catch {
-      // no body
-    }
+    body = request.body;
   }
 
   const res = await fetch(targetUrl, {
@@ -55,6 +48,8 @@ async function proxyRequest(request: NextRequest, path: string[]) {
     headers,
     body,
     redirect: "manual",
+    // @ts-ignore
+    duplex: "half",
   });
 
   // Read response as array buffer to support binary files/images

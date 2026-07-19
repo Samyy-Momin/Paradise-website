@@ -126,13 +126,8 @@ export default function GalleryAdminPage() {
   const uploadFileToCloudinary = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append("file", file);
-    const res = await fetch("/api/uploads", {
-      method: "POST",
-      body: formData,
-    });
-    if (!res.ok) throw new Error("Upload failed");
-    const data = await res.json();
-    return data.url;
+    const res = await apiClient.post("/uploads", formData);
+    return res.data.url;
   };
 
   const createGalleryItem = async (url: string) => {

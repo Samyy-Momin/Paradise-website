@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { apiClient } from "@/lib/api-client";
 
 interface FileUploadFieldProps {
   value: string;
@@ -47,18 +48,9 @@ export function FileUploadField({
     formData.append("file", file);
 
     try {
-      const res = await fetch("/api/uploads", {
-        method: "POST",
-        body: formData,
-      });
+      const res = await apiClient.post("/uploads", formData);
 
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || "Upload failed");
-      }
-
-      const data = await res.json();
-      onChange(data.url);
+      onChange(res.data.url);
     } catch (err: any) {
       if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       setError(err.message || "An error occurred during upload");

@@ -54,6 +54,7 @@ type SettingsFormValues = z.infer<typeof settingsSchema>;
 
 export default function SettingsAdminPage() {
   const [loading, setLoading] = useState(true);
+  const [initialData, setInitialData] = useState<SettingsFormValues | null>(null);
 
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsSchema),
@@ -124,32 +125,34 @@ export default function SettingsAdminPage() {
         );
         if (res.ok) {
           const data = await res.json();
-          form.reset({
-            address: data.address || "",
-            phones: data.phones
-              ? data.phones.map((p: string) => ({ value: p }))
-              : [],
-            hours: data.hours || "",
-            instagramUrl: data.instagramUrl || "",
-            facebookUrl: data.facebookUrl || "",
-            threadsUrl: data.threadsUrl || "",
-            principalName: data.principalName || "",
-            principalMessage: data.principalMessage || "",
-            principalImage: data.principalImage || "",
-            marqueeText: data.marqueeText || "",
-            heroImages: data.heroImages
-              ? data.heroImages.map((p: string) => ({ value: p }))
-              : [],
-            aboutImages: data.aboutImages
-              ? data.aboutImages.map((p: string) => ({ value: p }))
-              : [],
-            parentInvolvementImage: data.parentInvolvementImage || "",
-            instagramReels: data.instagramReels
-              ? data.instagramReels.map((p: string) => ({ value: p }))
-              : [],
-            extracurricularImage: data.extracurricularImage || "",
-            eventsImage: data.eventsImage || "",
-          });
+            const defaultValues = {
+              address: data.address || "",
+              phones: data.phones
+                ? data.phones.map((p: string) => ({ value: p }))
+                : [],
+              hours: data.hours || "",
+              instagramUrl: data.instagramUrl || "",
+              facebookUrl: data.facebookUrl || "",
+              threadsUrl: data.threadsUrl || "",
+              principalName: data.principalName || "",
+              principalMessage: data.principalMessage || "",
+              principalImage: data.principalImage || "",
+              marqueeText: data.marqueeText || "",
+              heroImages: data.heroImages
+                ? data.heroImages.map((p: string) => ({ value: p }))
+                : [],
+              aboutImages: data.aboutImages
+                ? data.aboutImages.map((p: string) => ({ value: p }))
+                : [],
+              parentInvolvementImage: data.parentInvolvementImage || "",
+              instagramReels: data.instagramReels
+                ? data.instagramReels.map((p: string) => ({ value: p }))
+                : [],
+              extracurricularImage: data.extracurricularImage || "",
+              eventsImage: data.eventsImage || "",
+            };
+            form.reset(defaultValues);
+            setInitialData(defaultValues);
         }
       } catch (err: any) {
         if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
@@ -191,6 +194,7 @@ export default function SettingsAdminPage() {
 
       if (!res.ok) throw new Error("Failed to save settings");
       alert("Settings saved successfully!");
+      setInitialData(data); // update initial data to the new saved state
     } catch (err: any) {
       if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
@@ -650,10 +654,19 @@ export default function SettingsAdminPage() {
               </TabsContent>
             </Tabs>
 
-            <div className="pt-6 border-t flex justify-end">
+            <div className="pt-6 border-t flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => initialData && form.reset(initialData)}
+                disabled={form.formState.isSubmitting || !form.formState.isDirty}
+                size="lg"
+              >
+                Cancel
+              </Button>
               <Button
                 type="submit"
-                disabled={form.formState.isSubmitting}
+                disabled={form.formState.isSubmitting || !form.formState.isDirty}
                 size="lg"
               >
                 {form.formState.isSubmitting && (

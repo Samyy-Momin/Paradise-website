@@ -60,7 +60,9 @@ async function proxyRequest(request: NextRequest, path: string[]) {
   
   // Forward ALL Set-Cookie headers from backend to browser
   const setCookies = res.headers.getSetCookie();
-  for (const cookie of setCookies) {
+  for (let cookie of setCookies) {
+    // Strip the Domain attribute so the browser attaches the cookie to the frontend domain
+    cookie = cookie.replace(/Domain=[^;]+;?\s*/gi, "");
     responseHeaders.append("set-cookie", cookie);
   }
 

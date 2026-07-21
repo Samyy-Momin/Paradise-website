@@ -19,6 +19,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { apiClient } from "@/lib/api-client";
 
 const settingsSchema = z.object({
   address: z.string().optional(),
@@ -117,15 +118,10 @@ export default function SettingsAdminPage() {
   useEffect(() => {
     async function fetchSettings() {
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/settings`,
-          {
-            credentials: "omit",
-          },
-        );
-        if (res.ok) {
-          const data = await res.json();
-            const defaultValues = {
+        const res = await apiClient.get("/settings");
+        const data = res.data;
+        if (data) {
+          const defaultValues = {
               address: data.address || "",
               phones: data.phones
                 ? data.phones.map((p: string) => ({ value: p }))
@@ -182,17 +178,7 @@ export default function SettingsAdminPage() {
           : [],
       };
 
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/settings`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(payload),
-        },
-      );
-
-      if (!res.ok) throw new Error("Failed to save settings");
+      await apiClient.put("/settings", payload);
       alert("Settings saved successfully!");
       setInitialData(data); // update initial data to the new saved state
     } catch (err: any) {

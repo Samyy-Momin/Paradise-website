@@ -31,6 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { apiClient } from "@/lib/api-client";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -71,16 +72,8 @@ export default function FaqAdminPage() {
   const fetchFaqs = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/faq`,
-        {
-          credentials: "omit",
-        },
-      );
-      if (res.ok) {
-        const data = await res.json();
-        setItems(data || []);
-      }
+      const res = await apiClient.get("/faq");
+      setItems(res.data || []);
     } catch (err: any) {
       if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
@@ -115,22 +108,10 @@ export default function FaqAdminPage() {
 
   const onSubmit = async (data: FaqFormValues) => {
     try {
-      const url = editingId
-        ? `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/faq/${editingId}`
-        : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/faq`;
-
-      const method = editingId ? "PATCH" : "POST";
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(data),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to save FAQ");
+      if (editingId) {
+        await apiClient.patch(`/faq/${editingId}`, data);
+      } else {
+        await apiClient.post("/faq", data);
       }
       setIsModalOpen(false);
       fetchFaqs();
@@ -149,17 +130,7 @@ export default function FaqAdminPage() {
   const handleDelete = async () => {
     if (!itemToDelete) return;
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/faq/${itemToDelete}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        },
-      );
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to delete FAQ");
-      }
+      await apiClient.delete(`/faq/${itemToDelete}`);
       fetchFaqs();
     } catch (err: any) {
       if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Plus, CheckCircle, Loader2, Trash2 } from "lucide-react";
+import { apiClient } from "@/lib/api-client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -57,16 +58,8 @@ export default function TestimonialsAdminPage() {
   const fetchTestimonials = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/testimonials?includeUnapproved=true`,
-        {
-          credentials: "include", // send auth cookie
-        },
-      );
-      if (res.ok) {
-        const data = await res.json();
-        setItems(data || []);
-      }
+      const res = await apiClient.get("/testimonials?includeUnapproved=true");
+      setItems(res.data || []);
     } catch (err: any) {
       if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
@@ -90,17 +83,7 @@ export default function TestimonialsAdminPage() {
 
   const onSubmit = async (data: TestimonialFormValues) => {
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/testimonials`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "omit", // Public endpoint
-          body: JSON.stringify(data),
-        },
-      );
-
-      if (!res.ok) throw new Error("Failed to submit testimonial");
+      await apiClient.post("/testimonials", data);
       setIsModalOpen(false);
       fetchTestimonials();
     } catch (err: any) {
@@ -112,14 +95,7 @@ export default function TestimonialsAdminPage() {
 
   const handleApprove = async (id: string) => {
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/testimonials/${id}/approve`,
-        {
-          method: "PATCH",
-          credentials: "include",
-        },
-      );
-      if (!res.ok) throw new Error("Failed to approve");
+      await apiClient.patch(`/testimonials/${id}/approve`);
       fetchTestimonials();
     } catch (err: any) {
       if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
@@ -133,14 +109,7 @@ export default function TestimonialsAdminPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this testimonial?")) return;
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/testimonials/${id}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        },
-      );
-      if (!res.ok) throw new Error("Failed to delete");
+      await apiClient.delete(`/testimonials/${id}`);
       fetchTestimonials();
     } catch (err: any) {
       if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;

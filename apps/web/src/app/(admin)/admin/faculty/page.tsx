@@ -32,6 +32,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { apiClient } from "@/lib/api-client";
 import { Input } from "@/components/ui/input";
 import {
   Form,
@@ -72,16 +73,8 @@ export default function FacultyAdminPage() {
   const fetchFaculty = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/faculty`,
-        {
-          credentials: "omit",
-        },
-      );
-      if (res.ok) {
-        const data = await res.json();
-        setItems(data || []);
-      }
+      const res = await apiClient.get("/faculty");
+      setItems(res.data || []);
     } catch (err: any) {
       if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
       console.error(err);
@@ -118,19 +111,12 @@ export default function FacultyAdminPage() {
 
   const onSubmit = async (data: FacultyFormValues) => {
     try {
-      const url = editingItem
-        ? `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/faculty/${editingItem.id}`
-        : `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/faculty`;
-      const method = editingItem ? "PATCH" : "POST";
+      if (editingItem) {
+        await apiClient.patch(`/faculty/${editingItem.id}`, data);
+      } else {
+        await apiClient.post("/faculty", data);
+      }
 
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(data),
-      });
-
-      if (!res.ok) throw new Error("Failed to save faculty member");
       setIsModalOpen(false);
       fetchFaculty();
     } catch (err: any) {
@@ -148,14 +134,7 @@ export default function FacultyAdminPage() {
   const handleDelete = async () => {
     if (!itemToDelete) return;
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api"}/faculty/${itemToDelete}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        },
-      );
-      if (!res.ok) throw new Error("Failed to delete faculty member");
+      await apiClient.delete(`/faculty/${itemToDelete}`);
       fetchFaculty();
     } catch (err: any) {
       if (err?.digest === "DYNAMIC_SERVER_USAGE") throw err;
